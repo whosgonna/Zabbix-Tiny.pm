@@ -7,7 +7,7 @@ use LWP;
 use JSON;
 use String::Random;
 
-our $VESRION = "1.0001";
+our $PACKAGE = "1.0001";
 
 has 'server' => (
     is       => 'rw',
