@@ -191,9 +191,20 @@ Probaly many bugs.
 
 =head1 COPYRIGHT
 
-BSD License
+Zabbix::Tiny is Copyright (C) 2016, Ben Kaufman.
+
+=head1 License Information
+
+This module is free software; you
+can redistribute it and/or modify it under the same terms
+as Perl 5.20.3.
+
+This program is distributed in the hope that it will be
+useful, but it is provided 'as is' and without any express
+or implied warranties. 
 
 =head1 AUTHOR
+
 Ben Kaufman
 
 
