@@ -8,108 +8,98 @@ use JSON;
 use String::Random;
 
 has 'server' => (
-	is 	=> 'rw',
-	required => 1,
+    is       => 'rw',
+    required => 1,
 );
 has 'user' => (
-	is	=> 'rw',
-	required => 1,
+    is       => 'rw',
+    required => 1,
 );
 has 'password' => (
-	is	=> 'rw',
-	required => 1,
+    is       => 'rw',
+    required => 1,
 );
-has 'auth' => (
-	is 	=> 'ro',
-);
-has 'ua' => (
-	is	=> 'ro',
-);
-has 'last_response' => (
-	is	=> 'ro',
-);
-has 'response_content' => (
-	is	=> 'ro',
-);
+has 'auth'             => ( is => 'ro', );
+has 'ua'               => ( is => 'ro', );
+has 'last_response'    => ( is => 'ro', );
+has 'response_content' => ( is => 'ro', );
 
-my @content_type = ('content-type', 'application/json',);
-
+my @content_type = ( 'content-type', 'application/json', );
 
 sub BUILD {
-	my $self = shift;
-	$self->{ua} = LWP::UserAgent->new;
-	my $ua = $self->ua;
-	my $url = $self->server;
-	my $id = new String::Random;
-	my $json_data = {
-		jsonrpc => '2.0',
-		id => $id->randpattern("nnnnnnnnnn"),
-		method => 'user.login',
-		params => {
-			user    => $self->user,
-			password => $self->password,
-		},
-	};
-	my $json = encode_json($json_data);
-	my $post_response = $ua->post($url, @content_type, Content => $json);
-	$self->{last_response} = $ua->post($url, @content_type, Content => $json);
-	$self->{response_content} = decode_json($self->{last_response}->{_content});
-	if ($self->{response_content}->{error}) {
-		my $error = $self->{response_content}->{error}->{data};
-		croak("Error: $error");
-	}
-	$self->{auth} = $self->{response_content}->{'result'};
-}
+    my $self = shift;
+    $self->{ua} = LWP::UserAgent->new;
+    my $ua        = $self->ua;
+    my $url       = $self->server;
+    my $id        = new String::Random;
+    my $json_data = {
+        jsonrpc => '2.0',
+        id      => $id->randpattern("nnnnnnnnnn"),
+        method  => 'user.login',
+        params  => {
+            user     => $self->user,
+            password => $self->password,
+        },
+    };
+    my $json = encode_json($json_data);
+    my $post_response = $ua->post( $url, @content_type, Content => $json );
+    $self->{last_response} = $ua->post( $url, @content_type, Content => $json );
+    $self->{response_content} =
+      decode_json( $self->{last_response}->{_content} );
 
+    if ( $self->{response_content}->{error} ) {
+        my $error = $self->{response_content}->{error}->{data};
+        croak("Error: $error");
+    }
+    $self->{auth} = $self->{response_content}->{'result'};
+}
 
 sub do {
-	my $self = shift;
-	my $method = shift;
-	my %args = @_;
-	my $id = new String::Random;
-	my $ua = $self->ua;
-	my $auth = $self->auth;
-	my $url = $self->server;
-	my $json_data = {
-		jsonrpc => '2.0',
-		id 	=> $id->randpattern("nnnnnnnnnn"),
-		method 	=> $method,
-		auth	=> $auth,
-		params 	=> \%args,
-	};
-	my $json = encode_json($json_data);
-	my $post_response = $ua->post($url, @content_type, Content => $json);
-	$self->{last_response} = $ua->post($url, @content_type, Content => $json);
-	$self->{response_content} = decode_json($self->{last_response}->{_content});
-	if ($self->{response_content}->{error}) {
-		my $error = $self->{response_content}->{error}->{data};
-		croak("Error: $error");
-	}
-	return $self->{response_content}->{'result'};
-}
+    my $self      = shift;
+    my $method    = shift;
+    my %args      = @_;
+    my $id        = new String::Random;
+    my $ua        = $self->ua;
+    my $auth      = $self->auth;
+    my $url       = $self->server;
+    my $json_data = {
+        jsonrpc => '2.0',
+        id      => $id->randpattern("nnnnnnnnnn"),
+        method  => $method,
+        auth    => $auth,
+        params  => \%args,
+    };
+    my $json = encode_json($json_data);
+    my $post_response = $ua->post( $url, @content_type, Content => $json );
+    $self->{last_response} = $ua->post( $url, @content_type, Content => $json );
+    $self->{response_content} =
+      decode_json( $self->{last_response}->{_content} );
 
+    if ( $self->{response_content}->{error} ) {
+        my $error = $self->{response_content}->{error}->{data};
+        croak("Error: $error");
+    }
+    return $self->{response_content}->{'result'};
+}
 
 sub DEMOLISH {
-	my $self = shift;
-	my $method = shift;
-	my $id = new String::Random;
-	my $ua = $self->ua;
-	my $auth = $self->auth;
-	my $url = $self->server;
-	my $json_data = {
-		jsonrpc => '2.0',
-		id      => $id->randpattern("nnnnnnnnnn"),
-		method  => 'user.logout',
-		auth    => $auth,
-	};
-	my $json = encode_json($json_data);
-	$self->{last_response} = $ua->post($url, @content_type, Content => $json);
+    my $self      = shift;
+    my $method    = shift;
+    my $id        = new String::Random;
+    my $ua        = $self->ua;
+    my $auth      = $self->auth;
+    my $url       = $self->server;
+    my $json_data = {
+        jsonrpc => '2.0',
+        id      => $id->randpattern("nnnnnnnnnn"),
+        method  => 'user.logout',
+        auth    => $auth,
+    };
+    my $json = encode_json($json_data);
+    $self->{last_response} = $ua->post( $url, @content_type, Content => $json );
 }
 
-
 1;
-
-
 
 __END__
 
