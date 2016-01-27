@@ -3,7 +3,8 @@ use strict;
 use warnings;
 use Moo;
 use Carp;
-use JSON::RPC::Client;
+use LWP;
+use JSON;
 use String::Random;
 
 has 'server' => (
@@ -21,21 +22,26 @@ has 'password' => (
 has 'auth' => (
 	is 	=> 'ro',
 );
-has 'client' => (
+has 'ua' => (
 	is	=> 'ro',
 );
 has 'last_response' => (
 	is	=> 'ro',
 );
+has 'response_content' => (
+	is	=> 'ro',
+);
+
+my @content_type = ('content-type', 'application/json',);
 
 
 sub BUILD {
 	my $self = shift;
-	$self->{client} = new JSON::RPC::Client;
-	my $client = $self->client;
+	$self->{ua} = LWP::UserAgent->new;
+	my $ua = $self->ua;
 	my $url = $self->server;
 	my $id = new String::Random;
-	my $json = {
+	my $json_data = {
 		jsonrpc => '2.0',
 		id => $id->randpattern("nnnnnnnnnn"),
 		method => 'user.login',
@@ -44,51 +50,60 @@ sub BUILD {
 			password => $self->password,
 		},
 	};
-	$self->{last_response} = $client->call($url, $json);
-	if ($self->{last_response}->{content}->{error}) {
-		my $error = $self->{last_response}->{content}->{error}->{data};
+	my $json = encode_json($json_data);
+	my $post_response = $ua->post($url, @content_type, Content => $json);
+	$self->{last_response} = $ua->post($url, @content_type, Content => $json);
+	$self->{response_content} = decode_json($self->{last_response}->{_content});
+	if ($self->{response_content}->{error}) {
+		my $error = $self->{response_content}->{error}->{data};
 		croak("Error: $error");
 	}
-	$self->{auth} = $self->{last_response}->content->{'result'};
+	$self->{auth} = $self->{response_content}->{'result'};
 }
+
 
 sub do {
 	my $self = shift;
 	my $method = shift;
 	my %args = @_;
 	my $id = new String::Random;
-	my $client = $self->client;
+	my $ua = $self->ua;
 	my $auth = $self->auth;
 	my $url = $self->server;
-	my $json = {
+	my $json_data = {
 		jsonrpc => '2.0',
 		id 	=> $id->randpattern("nnnnnnnnnn"),
 		method 	=> $method,
 		auth	=> $auth,
 		params 	=> \%args,
 	};
-	$self->{last_response} = $client->call($url, $json);
-	if ($self->{last_response}->{content}->{error}) {
-		my $error = $self->{last_response}->{content}->{error}->{data};
+	my $json = encode_json($json_data);
+	my $post_response = $ua->post($url, @content_type, Content => $json);
+	$self->{last_response} = $ua->post($url, @content_type, Content => $json);
+	$self->{response_content} = decode_json($self->{last_response}->{_content});
+	if ($self->{response_content}->{error}) {
+		my $error = $self->{response_content}->{error}->{data};
 		croak("Error: $error");
 	}
-	return $self->{last_response}->content->{'result'};
+	return $self->{response_content}->{'result'};
 }
+
 
 sub DEMOLISH {
 	my $self = shift;
 	my $method = shift;
 	my $id = new String::Random;
-	my $client = $self->client;
+	my $ua = $self->ua;
 	my $auth = $self->auth;
 	my $url = $self->server;
-	my $json = {
+	my $json_data = {
 		jsonrpc => '2.0',
 		id      => $id->randpattern("nnnnnnnnnn"),
 		method  => 'user.logout',
 		auth    => $auth,
 	};
-	$client->call($url, $json);
+	my $json = encode_json($json_data);
+	$self->{last_response} = $ua->post($url, @content_type, Content => $json);
 }
 
 
@@ -137,14 +152,14 @@ Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Z
       ## Any other params desired
   );
 
-  print Dmper $hosts;
+  print Dumper $hosts;
   
 =head1 DESCRIPTION
 
 This module functions as a simple wrapper to eliminate boilerplate that might otherwise need to be
 created when interfacing with the Zabbix API.  Login to the Zabbix servre is handled with the 
 constructor.  Beyond that, the primary method is the C<do> method. The user.logout method is implemented 
-in the object deconstructor as well, so there should be no need to explicity call it.
+in the object deconstructor as well, so there should be no need to explicity logout of zabbix.
 
 =head1 METHOD
 
@@ -163,9 +178,9 @@ data structure containing the response from the zabbix server.
 
 =item my $verbose = $zabbix->last_response;
 
-Communication with the zabbix server is done via the C<JSON::RPC::Client> module.  The C<do> method 
+Communication with the zabbix server is done via the C<LWP> module.  The C<do> method 
 contains a very succinct array ref that should contain only the data needed for interacting with the 
-zabbix server.  The C<last_response> argument returns the full C<JSON::RPC::Client call> response, 
+zabbix server.  The C<last_response> argument returns the LWP C<HTTP::Response> object, 
 which may be useful for troubleshooting.
 
 =back
