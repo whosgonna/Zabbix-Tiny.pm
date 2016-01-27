@@ -7,6 +7,8 @@ use LWP;
 use JSON;
 use String::Random;
 
+our $VESRION = "1.0001";
+
 has 'server' => (
     is       => 'rw',
     required => 1,
@@ -110,10 +112,6 @@ __END__
 =head1 NAME
 
 Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Zabbix API
-
-=head1 VERSION
-
-0.500
 
 =head1 SYNOPSIS
 
