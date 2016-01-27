@@ -82,13 +82,11 @@ Zabbix::Tiny is Copyright (C) 2016, Ben Kaufman.
 
 This module is free software; you
 can redistribute it and/or modify it under the same terms
-as Perl 5.10.0. For more details, see the full text of the
-licenses in the directory LICENSES.
+as Perl 5.20.3.
 
 This program is distributed in the hope that it will be
-useful, but it is provided “as is” and without any express
-or implied warranties. For details, see the full text of
-the license in the file LICENSE
+useful, but it is provided 'as is' and without any express
+or implied warranties. 
 
 =head1 AUTHOR
 
