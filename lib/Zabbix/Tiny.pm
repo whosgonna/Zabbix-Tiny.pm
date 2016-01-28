@@ -7,7 +7,7 @@ use LWP;
 use JSON;
 use String::Random;
 
-our $VERSION = "1.00";
+our $VERSION = "1.01";
 
 has 'server' => (
     is       => 'rw',
