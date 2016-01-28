@@ -52,6 +52,17 @@
       }
    },
    "release_status" : "unstable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/whosgonna/Zabbix-Tiny.pm/issues"
+      },
+      "homepage" : "https://github.com/whosgonna/Zabbix-Tiny.pm",
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/whosgonna/Zabbix-Tiny.pm.git",
+         "web" : "https://github.com/whosgonna/Zabbix-Tiny.pm"
+      }
+   },
    "version" : "1.00",
    "x_contributors" : [
       "Ben Kaufman <ben.kaufman@altigen.com>"
