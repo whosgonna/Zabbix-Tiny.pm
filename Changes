@@ -2,6 +2,9 @@ Revision history for Perl extension Zabbix-Tiny
 
 {{$NEXT}}
 
+1.01 2016-01-28T04:47:02Z
+    - Added files to cpanfile
+
 1.00 2016-01-28T03:33:10Z
 
     - original version

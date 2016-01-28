@@ -67,7 +67,7 @@
          "web" : "https://github.com/whosgonna/Zabbix-Tiny.pm"
       }
    },
-   "version" : "1.00",
+   "version" : "1.01",
    "x_contributors" : [
       "Ben Kaufman <ben.kaufman@altigen.com>"
    ]
