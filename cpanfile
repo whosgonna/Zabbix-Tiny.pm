@@ -1,5 +1,5 @@
 requires 'perl', '5.008001';
-requires 'JSON;'
+requires 'JSON';
 requires 'LWP';
 requires 'Moo';
 requires 'String::Random';
