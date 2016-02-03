@@ -7,6 +7,7 @@ use LWP;
 use JSON;
 use String::Random;
 
+
 our $VERSION = "1.01";
 
 has 'server' => (
@@ -21,10 +22,13 @@ has 'password' => (
     is       => 'rw',
     required => 1,
 );
-has 'auth'             => ( is => 'ro', );
-has 'ua'               => ( is => 'ro', );
-has 'last_response'    => ( is => 'ro', );
-has 'response_content' => ( is => 'ro', );
+has 'auth'				=> ( is => 'ro', );
+has 'ua'				=> ( is => 'ro', );
+has 'post_response'		=> ( is => 'ro');
+has 'last_response'		=> ( is => 'ro', );
+has 'json_request'		=> ( is => 'ro');
+has 'json_response'		=> ( is => 'ro');
+has 'verify_hostname'	=> (is => 'ro', default => 1);
 
 my @content_type = ( 'content-type', 'application/json', );
 
@@ -43,17 +47,23 @@ sub BUILD {
             password => $self->password,
         },
     };
+	if ($self->verify_hostname == 0) {
+		$ua->ssl_opts(verify_hostname => 0);
+	}
     my $json = encode_json($json_data);
-    my $post_response = $ua->post( $url, @content_type, Content => $json );
-    $self->{last_response} = $ua->post( $url, @content_type, Content => $json );
-    $self->{response_content} =
-      decode_json( $self->{last_response}->{_content} );
-
-    if ( $self->{response_content}->{error} ) {
-        my $error = $self->{response_content}->{error}->{data};
+    $self->{post_response} = $ua->post( $url, @content_type, Content => $json );
+	if ($self->{post_response}->{_rc} !~ /2\d\d/) {
+		die("$self->{post_response}->{_msg}");
+	}
+	$self->{json_request} = $self->{post_response}->{'_request'}->{_content};
+	$self->{json_response} = $self->{post_response}->{_content};
+    $self->{last_response} =
+      decode_json( $self->{post_response}->{_content} ) or die ($!);
+    if ( $self->{last_response}->{error} ) {
+        my $error = $self->{last_response}->{error}->{data};
         croak("Error: $error");
     }
-    $self->{auth} = $self->{response_content}->{'result'};
+    $self->{auth} = $self->{last_response}->{'result'};
 }
 
 sub do {
@@ -72,16 +82,17 @@ sub do {
         params  => \%args,
     };
     my $json = encode_json($json_data);
-    my $post_response = $ua->post( $url, @content_type, Content => $json );
-    $self->{last_response} = $ua->post( $url, @content_type, Content => $json );
-    $self->{response_content} =
-      decode_json( $self->{last_response}->{_content} );
+    $self->{post_response} = $ua->post( $url, @content_type, Content => $json );
+	$self->{json_request} = $self->{post_response}->{'_request'}->{_content};
+	$self->{json_response} = $self->{post_response}->{_content};
+    $self->{last_response} =
+      decode_json( $self->{post_response}->{_content} );
 
-    if ( $self->{response_content}->{error} ) {
-        my $error = $self->{response_content}->{error}->{data};
+    if ( $self->{last_response}->{error} ) {
+        my $error = $self->{last_response}->{error}->{data};
         croak("Error: $error");
     }
-    return $self->{response_content}->{'result'};
+    return $self->{last_response}->{'result'};
 }
 
 sub DEMOLISH {
@@ -98,7 +109,7 @@ sub DEMOLISH {
         auth    => $auth,
     };
     my $json = encode_json($json_data);
-    $self->{last_response} = $ua->post( $url, @content_type, Content => $json );
+    $self->{post_response} = $ua->post( $url, @content_type, Content => $json );
 }
 
 1;
