@@ -8,7 +8,7 @@ use JSON;
 use String::Random;
 
 
-our $VERSION = "1.01";
+our $VERSION = "1.02";
 
 has 'server' => (
     is       => 'rw',

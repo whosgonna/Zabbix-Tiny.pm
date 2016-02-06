@@ -2,6 +2,34 @@ Revision history for Perl extension Zabbix-Tiny
 
 {{$NEXT}}
 
+1.02 2016-02-06T23:19:10Z
+	- Updated perldoc
+
+	- minor typo fixes (in pod)
+
+    - Added method 'verify_hostname' to skip ssl validation to https
+      servers. This is useful when using self signed certificates, etc.
+
+    - New method 'post_response' is an object of  the entire the LWP
+      HTTP::Response.  This is very verbose, but useful for issues debugging
+      the actual connection to the zabbix server.  This is what
+      'last_response' was in previous versions.
+
+    - Method 'last_response' is no longer the entire HTTP::Response, but is
+      instead a hash ref of the response content.  This is the entire
+      JSON-RPC message from the zabbix server, including the json, auth, and
+      id headers. This may be useful for debugging, but the purpose of this
+      module is to remove the need to handle this information.
+
+    - New method 'json_request' returns a string of the json data sent to
+      the
+      zabbix server in the most recent request.  Useful for debugging the
+      data sent to zabbix.
+
+    - New method 'json_response' returns a string of the json data received
+      from the zabbix server in the most resent response.  Useful for
+      debugging the data received from zabbix.
+
 1.01 2016-01-28T04:47:02Z
     - Added files to cpanfile
 
