@@ -7,7 +7,6 @@ use LWP;
 use JSON;
 use String::Random;
 
-
 our $VERSION = "1.02";
 
 has 'server' => (
@@ -29,6 +28,7 @@ has 'last_response'		=> ( is => 'ro', );
 has 'json_request'		=> ( is => 'ro');
 has 'json_response'		=> ( is => 'ro');
 has 'verify_hostname'	=> ( is => 'rw', default => 1);
+has 'ssl_opts'			=> ( is => 'rw');
 
 my @content_type = ( 'content-type', 'application/json', );
 
@@ -50,6 +50,12 @@ sub BUILD {
 	if ($self->verify_hostname == 0) {
 		$ua->ssl_opts(verify_hostname => 0);
 	}
+	
+	if ($self->ssl_opts) {
+		print "Funky Moneky!\n";
+		$ua->ssl_opts(%{ $self->{ssl_opts} });
+	}
+
     my $json = encode_json($json_data);
     $self->{post_response} = $ua->post( $url, @content_type, Content => $json );
 	if ($self->{post_response}->{_rc} !~ /2\d\d/) {
@@ -179,19 +185,19 @@ This module was developed against Zabbix 2.4, and is expected to work with Zabbi
 
 =over 4
 
-=item my $zabbix = new( server => $url, password => $password, user => $username, [verify_hostname => 0]);
+=item my $zabbix = Zabbix::Tiny->new( server => $url, password => $password, user => $username, [ssl_opts => {%ssl_opts}]);
 
-The constructor requires server, user, and password.  It will create the zabbix object, and log in to the server all at once.  The C<verify_hostname> argument can be set to 0 to skip validating the certificate when connecting to https with a self-signed or otherwise un-trusted certificate.
+The constructor requires server, user, and password.  It will create the Zabbix::Tiny object, and log in to the server all at once.  The C<ssl_opts> argument can be set to set the LWP::UserAgent ssl_opts attribute when connecting to https with a self-signed or otherwise un-trusted certificate (see note about untrusted certificates below).
 
 =item my $hosts = $zabbix->do('zabbix.method', %params);
 
-This will execute any defined zabbix method, with the corresponding params.  Refer to the Zabbix manual for a list of available methods.  If the zabbix method is of a *.get flavor, the return is an arrayref data structure containing the response from the zabbix server.
+This will execute any defined Zabbix method, with the corresponding params.  Refer to the Zabbix manual for a list of available methods.  If the Zabbix method is of a *.get flavor, the return is an arrayref data structure containing the response from the Zabbix server.
 
 =back
 
 =head2 DEBUGGING METHODS
 
-The Zabbix::Tiny C<do> method contains a very succinct array ref that should contain only the data needed for interacting with the zabbix server, so there should be little need to worry about serializing json, managing the Zabbix auth token, etc., however these methods are provided for convenience.
+The Zabbix::Tiny C<do> method contains a very succinct arrayref that should contain only the data needed for interacting with the Zabbix server, so there should be little need to worry about serializing json, managing the Zabbix auth token, etc., however these methods are provided for convenience.
 
 =over 4
 
@@ -201,7 +207,7 @@ The main purpose of this module is to hide away the need to track the authentica
 
 =item my $json_request = $zabbix->json_request;
 
-used to retrieve the last raw json message sent to the Zabbix server, including the "jsonrpc", "id", and "auth".
+Used to retrieve the last raw json message sent to the Zabbix server, including the "jsonrpc", "id", and "auth".
 
 =item my $json_response = $zabbix->json_response;
 
@@ -220,6 +226,28 @@ The L<HTTP::Response> from the Zabbix server for the most recent request.
 =head1 BUGS and CAVEATS
 
 Probaly bugs.
+
+==head1 NOTES
+
+==head2 Untrusted Certificates
+
+In many cases it is expected that zabbix servers may be using self-signed or otherwise 'untrusted' certiifcates.  The ssl_opts argument in the constructor can be set to any valid values for LWP::UserAgent to disallow certificate checks.  For example:
+
+  use strict;
+  use warnings;
+  use Zabbix::Tiny;
+  use IO::Socket::SSL;
+
+  my $zabbix =  Zabbix::Tiny->new(
+      server   => $url,
+      password => $password,
+      user     => $username,
+      ssl_opts => {
+          verify_hostname => 0, 
+          SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE
+      },
+  );
+ 
 
 =head1 See Also
 
