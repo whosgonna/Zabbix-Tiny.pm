@@ -52,7 +52,6 @@ sub BUILD {
 	}
 	
 	if ($self->ssl_opts) {
-		print "Funky Moneky!\n";
 		$ua->ssl_opts(%{ $self->{ssl_opts} });
 	}
 
