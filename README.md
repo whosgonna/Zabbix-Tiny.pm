@@ -56,17 +56,17 @@ This module was developed against Zabbix 2.4, and is expected to work with Zabbi
 
 ## PRIMARY METHODS
 
-- my $zabbix = new( server => $url, password => $password, user => $username, \[verify\_hostname => 0\]);
+- my $zabbix = Zabbix::Tiny->new( server => $url, password => $password, user => $username, \[ssl\_opts => {%ssl\_opts}\]);
 
-    The constructor requires server, user, and password.  It will create the zabbix object, and log in to the server all at once.  The `verify_hostname` argument can be set to 0 to skip validating the certificate when connecting to https with a self-signed or otherwise un-trusted certificate.
+    The constructor requires server, user, and password.  It will create the Zabbix::Tiny object, and log in to the server all at once.  The `ssl_opts` argument can be set to set the LWP::UserAgent ssl\_opts attribute when connecting to https with a self-signed or otherwise un-trusted certificate (see note about untrusted certificates below).
 
 - my $hosts = $zabbix->do('zabbix.method', %params);
 
-    This will execute any defined zabbix method, with the corresponding params.  Refer to the Zabbix manual for a list of available methods.  If the zabbix method is of a \*.get flavor, the return is an arrayref data structure containing the response from the zabbix server.
+    This will execute any defined Zabbix method, with the corresponding params.  Refer to the Zabbix manual for a list of available methods.  If the Zabbix method is of a \*.get flavor, the return is an arrayref data structure containing the response from the Zabbix server.
 
 ## DEBUGGING METHODS
 
-The Zabbix::Tiny `do` method contains a very succinct array ref that should contain only the data needed for interacting with the zabbix server, so there should be little need to worry about serializing json, managing the Zabbix auth token, etc., however these methods are provided for convenience.
+The Zabbix::Tiny `do` method contains a very succinct arrayref that should contain only the data needed for interacting with the Zabbix server, so there should be little need to worry about serializing json, managing the Zabbix auth token, etc., however these methods are provided for convenience.
 
 - my $auth = $zabbix->auth;
 
@@ -74,7 +74,7 @@ The Zabbix::Tiny `do` method contains a very succinct array ref that should cont
 
 - my $json\_request = $zabbix->json\_request;
 
-    used to retrieve the last raw json message sent to the Zabbix server, including the "jsonrpc", "id", and "auth".
+    Used to retrieve the last raw json message sent to the Zabbix server, including the "jsonrpc", "id", and "auth".
 
 - my $json\_response = $zabbix->json\_response;
 
@@ -91,6 +91,28 @@ The Zabbix::Tiny `do` method contains a very succinct array ref that should cont
 # BUGS and CAVEATS
 
 Probaly bugs.
+
+# NOTES
+
+## Untrusted Certificates
+
+In many cases it is expected that zabbix servers may be using self-signed or otherwise 'untrusted' certiifcates.  The ssl\_opts argument in the constructor can be set to any valid values for LWP::UserAgent to disallow certificate checks.  For example:
+
+     use strict;
+     use warnings;
+     use Zabbix::Tiny;
+     use IO::Socket::SSL;
+
+     my $zabbix =  Zabbix::Tiny->new(
+         server   => $url,
+         password => $password,
+         user     => $username,
+         ssl_opts => {
+             verify_hostname => 0, 
+             SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE
+         },
+     );
+    
 
 # See Also
 

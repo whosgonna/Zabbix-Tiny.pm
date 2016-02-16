@@ -226,9 +226,9 @@ The L<HTTP::Response> from the Zabbix server for the most recent request.
 
 Probaly bugs.
 
-==head1 NOTES
+=head1 NOTES
 
-==head2 Untrusted Certificates
+=head2 Untrusted Certificates
 
 In many cases it is expected that zabbix servers may be using self-signed or otherwise 'untrusted' certiifcates.  The ssl_opts argument in the constructor can be set to any valid values for LWP::UserAgent to disallow certificate checks.  For example:
 
