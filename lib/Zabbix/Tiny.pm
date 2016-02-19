@@ -7,7 +7,7 @@ use LWP;
 use JSON;
 use String::Random;
 
-our $VERSION = "1.02";
+our $VERSION = "1.03";
 
 has 'server' => (
     is       => 'rw',
@@ -86,7 +86,10 @@ sub do {
         auth    => $auth,
         params  => \%args,
     };
-    my $json = encode_json($json_data);
+	use Data::Dumper;
+	print Dumper %args;
+    my $json = encode_json($json_data) or die($!);
+	print $json;
     $self->{post_response} = $ua->post( $url, @content_type, Content => $json );
 	$self->{json_request} = $self->{post_response}->{'_request'}->{_content};
 	$self->{json_response} = $self->{post_response}->{_content};

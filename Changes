@@ -1,6 +1,8 @@
 Revision history for Perl extension Zabbix-Tiny
 
 {{$NEXT}}
+
+1.03 2016-02-19T20:54:32Z
 	- Changed from using verify_hostname only to exposing all of the 
 	  LWP::UserAgent->{ua}-{ssl_opts} attributes.
 
