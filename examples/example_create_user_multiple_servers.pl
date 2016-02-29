@@ -3,10 +3,9 @@ use warnings;
 
 use lib "../lib";
 
-# This example allows to create a user on multiple Zabbix servers and accepts username, groups, name and surname on the
-#  commandline. Example invocation:
-
-# perl create_user.pl --user rziema --group "Good users" --group "Nice users" --name Roberts --surname Ziema
+## This example allows to create a user on multiple Zabbix servers and accepts username, groups, name and surname on the
+##  commandline. Example invocation:
+## perl create_user.pl --user rziema --group "Good users" --group "Nice users" --name Roberts --surname Ziema
 
 use Zabbix::Tiny;
 use Getopt::Long qw(GetOptions);
