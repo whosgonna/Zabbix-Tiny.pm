@@ -1,19 +1,18 @@
+#!/usr/bin/env perl
 use strict;
 use warnings;
-
-# Unlinking and clearing a template in Zabbix can fail when PHP runs out of memory.
-# This example has a hardcoded template ID. It finds all hosts, linked to that template, then unlinks and clears them
-#  one by one.
-
 use Zabbix::Tiny;
-use Data::Dumper;
 
-my $username = 'user';
-my $password = 'password';
-my $url = 'http://host/zabbix/api_jsonrpc.php';
+## Unlinking and clearing a template in Zabbix can fail when PHP runs out of memory.
+## This example has a hardcoded template ID. It finds all hosts, linked to that
+## template, then unlinks and clears them one by one.
+## To find the $templateid to be used, open the template in the zabbix front end
+## and get the value from the 'templateid=xxxxx' portion of the URL.
 
-my @hostids;
-my $templateid = "13";
+my $username   = 'user';
+my $password   = 'password';
+my $url        = 'http://host/zabbix/api_jsonrpc.php';
+my $templateid = '13';
 
 my $zabbix = Zabbix::Tiny->new(
     server   => $url,
@@ -21,19 +20,20 @@ my $zabbix = Zabbix::Tiny->new(
     user     => $username,
 );
 
-print "getting host IDs\n";
+print "Getting hosts linked to templateid $templateid...\n";
 my $result = $zabbix->do(
     'host.get',
-    output => "hostid",
+    output      => [ 'hostid', 'name' ],
     templateids => $templateid,
 );
 
-foreach my $host (@$result) {
+for my $host (@$result) {
+    print "\n$host->{name}\n";
     my $result_unlink = $zabbix->do(
         'host.update',
-        hostid => $host->{hostid},
+        hostid          => $host->{hostid},
         templates_clear => $templateid,
     );
-    print $zabbix->json_request;
-    print Dumper($result_unlink);
+    print "Request: - " . $zabbix->json_request . "\n";
+    print "Response: - " . $zabbix->json_response . "\n";
 }
