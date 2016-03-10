@@ -90,7 +90,7 @@ The Zabbix::Tiny `do` method contains a very succinct arrayref that should conta
 
 # BUGS and CAVEATS
 
-Probaly bugs.
+Probably bugs.
 
 # NOTES
 
