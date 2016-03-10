@@ -227,7 +227,7 @@ The L<HTTP::Response> from the Zabbix server for the most recent request.
 
 =head1 BUGS and CAVEATS
 
-Probaly bugs.
+Probably bugs.
 
 =head1 NOTES
 
