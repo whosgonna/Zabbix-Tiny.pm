@@ -86,7 +86,7 @@ sub do {
         auth    => $auth,
         params  => \%args,
     };
-    my $json = encode_json($json_data);
+    my $json = encode_json($json_data) or die($!);
     $self->{post_response} = $ua->post( $url, @content_type, Content => $json );
 	$self->{json_request} = $self->{post_response}->{'_request'}->{_content};
 	$self->{json_response} = $self->{post_response}->{_content};
