@@ -2,6 +2,11 @@ Revision history for Perl extension Zabbix-Tiny
 
 {{$NEXT}}
 
+1.04 2016-03-10T22:32:11Z
+	- Changed default value assignment for verify_hostname from "default => 1" to "default => sub {1}".  Some CPAN tests were failing, and it looks like this is becuase Moo only supports assigning defaults by subroutine.
+
+	- New examples from Richlv should be on github (hopefully not in CPAN)
+
 1.03 2016-02-19T20:54:32Z
 	- Changed from using verify_hostname only to exposing all of the 
 	  LWP::UserAgent->{ua}-{ssl_opts} attributes.
