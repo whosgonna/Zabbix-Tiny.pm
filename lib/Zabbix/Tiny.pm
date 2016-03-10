@@ -27,7 +27,7 @@ has 'post_response'		=> ( is => 'ro');
 has 'last_response'		=> ( is => 'ro', );
 has 'json_request'		=> ( is => 'ro');
 has 'json_response'		=> ( is => 'ro');
-has 'verify_hostname'	=> ( is => 'rw', default => 1);
+has 'verify_hostname'	=> ( is => 'rw', default => sub {1} );
 has 'ssl_opts'			=> ( is => 'rw');
 
 my @content_type = ( 'content-type', 'application/json', );
@@ -86,10 +86,7 @@ sub do {
         auth    => $auth,
         params  => \%args,
     };
-	use Data::Dumper;
-	print Dumper %args;
-    my $json = encode_json($json_data) or die($!);
-	print $json;
+    my $json = encode_json($json_data);
     $self->{post_response} = $ua->post( $url, @content_type, Content => $json );
 	$self->{json_request} = $self->{post_response}->{'_request'}->{_content};
 	$self->{json_response} = $self->{post_response}->{_content};
