@@ -11,6 +11,7 @@ my $username     = 'user';
 my $password     = 'password';
 my $url          = 'http://host/zabbix/api_jsonrpc.php';
 my $templatename = "Template to unlink and clear";
+my $result;
 
 my $zabbix = Zabbix::Tiny->new(
     server   => $url,
@@ -27,7 +28,7 @@ $result = $zabbix->do(
 my $templateid = $result->[0]{templateid};
 
 print "Getting hosts linked to templateid $templateid...\n";
-my $result = $zabbix->do(
+$result = $zabbix->do(
     'host.get',
     output      => [ 'hostid', 'name' ],
     templateids => $templateid,
