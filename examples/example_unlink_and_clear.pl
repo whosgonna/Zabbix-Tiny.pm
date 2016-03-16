@@ -4,21 +4,27 @@ use warnings;
 use Zabbix::Tiny;
 
 ## Unlinking and clearing a template in Zabbix can fail when PHP runs out of memory.
-## This example has a hardcoded template ID. It finds all hosts, linked to that
+## This example has a hardcoded template name. It finds all hosts, linked to that
 ## template, then unlinks and clears them one by one.
-## To find the $templateid to be used, open the template in the zabbix front end
-## and get the value from the 'templateid=xxxxx' portion of the URL.
 
-my $username   = 'user';
-my $password   = 'password';
-my $url        = 'http://host/zabbix/api_jsonrpc.php';
-my $templateid = '13';
+my $username     = 'user';
+my $password     = 'password';
+my $url          = 'http://host/zabbix/api_jsonrpc.php';
+my $templatename = "Template to unlink and clear";
 
 my $zabbix = Zabbix::Tiny->new(
     server   => $url,
     password => $password,
     user     => $username,
 );
+
+print "Getting tempate ID for template $templatename...\n";
+$result = $zabbix->do(
+    'template.get',
+    output => "templateid",
+    filter => { "host" => $templatename },
+);
+my $templateid = $result->[0]{templateid};
 
 print "Getting hosts linked to templateid $templateid...\n";
 my $result = $zabbix->do(
