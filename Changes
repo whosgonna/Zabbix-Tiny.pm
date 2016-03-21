@@ -1,6 +1,7 @@
 Revision history for Perl extension Zabbix-Tiny
 
 {{$NEXT}}
+    - Should now take params argument as a reference (arrayref or hash ref depending on the Zabbix API method).  Passing parms as a hash (as opposed to hashref) is still supported for backwards compatability.
 
 1.04 2016-03-10T22:32:11Z
 	- Changed default value assignment for verify_hostname from "default => 1" to "default => sub {1}".  Some CPAN tests were failing, and it looks like this is becuase Moo only supports assigning defaults by subroutine.

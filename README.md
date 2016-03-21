@@ -20,12 +20,16 @@ Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Z
         user     => $username
     );
 
-    my $hosts = $zabbix->do(
-        'host.get',  # First argument is the Zabbix API method
+    my $params = {
         output    => [qw(hostid name host)],  # Remaining paramters to 'do' are the params for the zabbix method.
         monitored => 1,
         limit     => 2,
         ## Any other params desired
+    };
+
+    my $hosts = $zabbix->do(
+        'host.get',  # First argument is the Zabbix API method
+        $params
     );
 
     # Print some of the retreived information.
@@ -60,9 +64,13 @@ This module was developed against Zabbix 2.4, and is expected to work with Zabbi
 
     The constructor requires server, user, and password.  It will create the Zabbix::Tiny object, and log in to the server all at once.  The `ssl_opts` argument can be set to set the LWP::UserAgent ssl\_opts attribute when connecting to https with a self-signed or otherwise un-trusted certificate (see note about untrusted certificates below).
 
-- my $hosts = $zabbix->do('zabbix.method', %params);
+- my $hosts = $zabbix->do('zabbix.method', ... );
 
-    This will execute any defined Zabbix method, with the corresponding params.  Refer to the Zabbix manual for a list of available methods.  If the Zabbix method is of a \*.get flavor, the return is an arrayref data structure containing the response from the Zabbix server.
+        my $hosts = $zabbix->do('zabbix.method', {%params});
+        my $hosts = $zabbix->do('zabbix.method', [@params]);
+        my $hosts = $zabbix->do('zabbix.method', %params); ## Depricated
+
+    This will execute any defined Zabbix method, with the corresponding params.  Refer to the Zabbix manual for a list of available methods.  If the Zabbix method is of a \*.get flavor, the return is an arrayref data structure containing the response from the Zabbix server.  Starting with v1.05, it is preferred to pass parameters as a hashref or an arrayref, since a few Zabbix API methods take an array, rather than a hash of parameters.  Support for params as a hash are still supported for backwards compatibility.
 
 ## DEBUGGING METHODS
 
