@@ -67,8 +67,12 @@ foreach my $zserver (keys %zservers) {
         print "checking $group";
         my $usergroupid = $zabbix->do(
             'usergroup.get',
-            output => "usrgrpid",
-            filter => { "name" => $group },
+            {
+                output => "usrgrpid",
+                filter => { 
+                    "name" => $group 
+                },
+            }
         );
         if (@$usergroupid) {
             print "... exists\n";
@@ -85,12 +89,14 @@ foreach my $zserver (keys %zservers) {
     # using eval - if the user already exists, an error message will be printed but we'll proceed
     eval { $zabbix->do(
         'user.create',
-        alias   => $usertocreate,
-        passwd  => $default_password,
-        usrgrps => [ @usergroupids ],
-        name    => $name,
-        surname => $surname,
-        type    => 3,
+        {
+            alias   => $usertocreate,
+            passwd  => $default_password,
+            usrgrps => [ @usergroupids ],
+            name    => $name,
+            surname => $surname,
+            type    => 3,
+        }
     ); };
     print $@ if ($@);
 }
