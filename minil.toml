@@ -2,5 +2,5 @@ name = "Zabbix-Tiny"
 # badges = ["travis"]
 module_maker="ModuleBuildTiny"
 
-[FileGatherer]
-exclude_match = ['^examples/.*']
+#[FileGatherer]
+#exclude_match = ['^examples/.*']
