@@ -1,6 +1,8 @@
 Revision history for Perl extension Zabbix-Tiny
 
 {{$NEXT}}
+
+1.05 2016-03-23T00:01:46Z
     - Should now take params argument as a reference (arrayref or hash ref depending on the Zabbix API method).  Passing parms as a hash (as opposed to hashref) is still supported for backwards compatability.
 
 1.04 2016-03-10T22:32:11Z
