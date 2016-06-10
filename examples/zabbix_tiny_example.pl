@@ -28,7 +28,6 @@ my $hosts = $zabbix->do(
     limit		=> 1,
 );
 
-print Dumper $hosts;exit;
 
 for my $host (@$hosts) {
 	print "$host->{name}   URL:  $host->{inventory}->{url_a}\n";
