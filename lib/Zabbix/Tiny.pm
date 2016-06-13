@@ -23,20 +23,27 @@ has 'password' => (
     is       => 'rw',
     required => 1,
 );
-has 'auth'				=> ( is => 'ro', );
-has 'ua'				=> ( is => 'ro', );
-has 'post_response'		=> ( is => 'ro');
-has 'last_response'		=> ( is => 'ro', );
-has 'json_request'		=> ( is => 'ro');
-has 'json_response'		=> ( is => 'ro');
-has 'verify_hostname'	=> ( is => 'rw', default => sub {1} );
-has 'ssl_opts'			=> ( is => 'rw');
-
+has 'zabbix_method'   => ( is => 'ro' );
+has 'zabbix_params'   => ( is => 'ro' );
+has 'auth'            => ( is => 'ro' );
+has 'ua'              => ( is => 'ro' );
+has 'post_response'   => ( is => 'ro' );
+has 'last_response'   => ( is => 'ro' );
+has 'json_request'    => ( is => 'ro' );
+has 'json_response'   => ( is => 'ro' );
+has 'verify_hostname' => ( is => 'rw', default => sub { 1 } );
+has 'ssl_opts'        => ( is => 'rw' );
+has 'delay'           => ( is => 'rw' );
+has 'request'         => ( is => 'ro' );
+has 'json_prepared'   => ( is => 'ro' );
+has 'json_executed'   => ( is => 'ro', default => sub { 0 } );
+has 'redo'            => ( is => 'ro' );
+has 'content_type'    => ( is => 'ro', default => sub {  ( 'content-type', 'application/json', ); } ); 
 my @content_type = ( 'content-type', 'application/json', );
 
 sub BUILD {
     my $self = shift;
-    $self->{ua} = LWP::UserAgent->new;
+    $self->{ua}   = LWP::UserAgent->new;
     my $ua        = $self->ua;
     my $url       = $self->server;
     my $id        = new String::Random;
@@ -49,66 +56,122 @@ sub BUILD {
             password => $self->password,
         },
     };
-	if ($self->verify_hostname == 0) {
-		$ua->ssl_opts(verify_hostname => 0);
-	}
-	
-	if ($self->ssl_opts) {
-		$ua->ssl_opts(%{ $self->{ssl_opts} });
-	}
-
-    my $json = encode_json($json_data);
-    $self->{post_response} = $ua->post( $url, @content_type, Content => $json );
-	if ($self->{post_response}->{_rc} !~ /2\d\d/) {
-		die("$self->{post_response}->{_msg}");
-	}
-	$self->{json_request} = $self->{post_response}->{'_request'}->{_content};
-	$self->{json_response} = $self->{post_response}->{_content};
-    $self->{last_response} =
-      decode_json( $self->{post_response}->{_content} ) or die ($!);
-    if ( $self->{last_response}->{error} ) {
-        my $error = $self->{last_response}->{error}->{data};
-        croak("Error: $error");
+    if ( $self->verify_hostname == 0 ) {
+        $ua->ssl_opts( verify_hostname => 0 );
     }
-    $self->{auth} = $self->{last_response}->{'result'};
+
+    if ( $self->ssl_opts ) {
+        $ua->ssl_opts( %{ $self->{ssl_opts} } );
+    }
+    #login($self);
 }
 
-sub do {
+sub login {
     my $self      = shift;
-    my $method    = shift;
-    my @args      = @_;
     my $id        = new String::Random;
     my $ua        = $self->ua;
-    my $auth      = $self->auth;
     my $url       = $self->server;
-    my $params;
-    if (scalar @args == 1) {
-        $params = $args[0];
-    }
-    else {
-        my %params = @args;
-        $params = \%params;
-    }
-
     my $json_data = {
         jsonrpc => '2.0',
         id      => $id->randpattern("nnnnnnnnnn"),
-        method  => $method,
-        auth    => $auth,
-        params  => $params,
+        method  => 'user.login',
+        params  => {
+            user     => $self->user,
+            password => $self->password,
+        },
     };
-    my $json = encode_json($json_data) or die($!);
-    $self->{post_response} = $ua->post( $url, @content_type, Content => $json );
-	$self->{json_request} = $self->{post_response}->{'_request'}->{_content};
-	$self->{json_response} = $self->{post_response}->{_content};
-    $self->{last_response} =
-      decode_json( $self->{post_response}->{_content} );
-
-    if ( $self->{last_response}->{error} ) {
-        my $error = $self->{last_response}->{error}->{data};
+    my $json = encode_json($json_data);
+    my $response = $ua->post( $url, @content_type, Content => $json );
+    if ( $response->{_rc} !~ /2\d\d/ ) {
+        die("$response->{_msg}");
+    }
+    my $content = decode_json( $response->{_content} ) or die($!);
+    if ( $content->{error} ) {
+        my $error = $content->{error}->{data};
         croak("Error: $error");
     }
-    return $self->{last_response}->{'result'};
+    $self->{auth} = $content->{'result'};
+}
+
+sub prepare {
+    my $self   = shift;
+    login($self) if (!$self->auth);
+    my $id     = new String::Random;
+    my $method = shift;
+    if ($method) {
+        $self->{zabbix_method} = $method;
+        my @args   = @_;
+        if ( scalar @args == 1 ) {
+            $self->{zabbix_params} = $args[0];
+        }
+        else {
+            my %params = @args;
+            $self->{zabbix_params} = \%params;
+        }
+    }
+    if(!$self->zabbix_method) {
+        croak("No Zabbix API method defined");
+    }
+    $self->{request} = {
+        jsonrpc => '2.0',
+        id      => $id->randpattern("nnnnnnnnnn"),
+        method  => $self->zabbix_method,
+        auth    => $self->auth,
+        params  => $self->zabbix_params,
+    };
+    $self->{json_prepared} = encode_json($self->request) or die($!);
+}
+
+sub execute {
+    my $self   = shift;
+    my $ua = $self->ua;
+    $self->{post_response} = $ua->post( 
+        $self->server, 
+        @content_type, 
+        Content => $self->json_prepared 
+    );
+    $self->{json_request}  = $self->{post_response}->{'_request'}->{_content};
+    $self->{json_response} = $self->{post_response}->{_content};
+    $self->{last_response} = decode_json( $self->{post_response}->{_content} );
+}
+
+sub do {
+    my $self   = shift;
+    my $method = shift;
+    my @args   = @_;
+    if ($method) {
+        prepare($self, $method, @args);
+    }
+    execute($self);
+    if ( $self->{last_response}->{error} ) {
+        my $error = $self->{last_response}->{error}->{data};
+        if ((!$self->{redo}) && ($error eq 'Session terminated, re-login, please.') ) {
+            $self->{redo}++;
+            delete($self->{auth});
+            prepare($self);
+            &do($self); ## Need to use "&" because "do" is a perl keyword.
+        }
+        else{
+            croak("Error: $error");
+        }
+    }
+    else {
+        delete($self->{redo}) if $self->redo;
+        $self->{json_executed} = 1;
+        return $self->{last_response}->{'result'};
+    };
+}
+
+
+sub re_do {
+    my $self = shift;
+    prepare($self);
+    $self->do($self);
+}
+
+sub error {
+
+
 }
 
 sub DEMOLISH {
