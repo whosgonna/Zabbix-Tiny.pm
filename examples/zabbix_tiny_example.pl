@@ -7,10 +7,9 @@ use IO::Socket::SSL;
 
 use Data::Dumper;
 
-my $username = $ARGV[1];;
+my $username = $ARGV[1];
 my $password = $ARGV[2];
 my $url      = $ARGV[0];
-#$url = 'https://zabbix.alti-serv.com/api_jsonrpc.php';
 
 # Create a new Zabbix::Tiny object
 my $zabbix = Zabbix::Tiny->new(
@@ -27,12 +26,6 @@ my $hosts = $zabbix->do(
 	monitored_hosts	=> 1,
     limit		=> 1,
 );
-
-
-for my $host (@$hosts) {
-	print "$host->{name}   URL:  $host->{inventory}->{url_a}\n";
-}
-exit;
 
 print "JSON request:\n" . $zabbix->json_request . "\n\n";	# Print the json data sent in the last request.
 print "JSON response:\n" . $zabbix->json_response . "\n\n";	# Print the json data received in the last response.
