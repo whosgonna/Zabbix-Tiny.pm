@@ -7,9 +7,9 @@ use IO::Socket::SSL;
 
 use Data::Dumper;
 
+my $url      = $ARGV[0];
 my $username = $ARGV[1];
 my $password = $ARGV[2];
-my $url      = $ARGV[0];
 
 # Create a new Zabbix::Tiny object
 my $zabbix = Zabbix::Tiny->new(

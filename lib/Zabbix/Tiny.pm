@@ -7,8 +7,6 @@ use LWP;
 use JSON;
 use String::Random;
 
-use Data::Dumper;
-
 our $VERSION = "1.05";
 
 has 'server' => (
@@ -38,12 +36,11 @@ has 'request'         => ( is => 'ro' );
 has 'json_prepared'   => ( is => 'ro' );
 has 'json_executed'   => ( is => 'ro', default => sub { 0 } );
 has 'redo'            => ( is => 'ro' );
-has 'content_type'    => ( is => 'ro', default => sub {  ( 'content-type', 'application/json', ); } ); 
 my @content_type = ( 'content-type', 'application/json', );
 
 sub BUILD {
     my $self = shift;
-    $self->{ua}   = LWP::UserAgent->new;
+    $self->{ua} = LWP::UserAgent->new;
     my $ua        = $self->ua;
     my $url       = $self->server;
     my $id        = new String::Random;
@@ -63,7 +60,6 @@ sub BUILD {
     if ( $self->ssl_opts ) {
         $ua->ssl_opts( %{ $self->{ssl_opts} } );
     }
-    #login($self);
 }
 
 sub login {
@@ -94,13 +90,13 @@ sub login {
 }
 
 sub prepare {
-    my $self   = shift;
-    login($self) if (!$self->auth);
+    my $self = shift;
+    login($self) if ( !$self->auth );
     my $id     = new String::Random;
     my $method = shift;
     if ($method) {
         $self->{zabbix_method} = $method;
-        my @args   = @_;
+        my @args = @_;
         if ( scalar @args == 1 ) {
             $self->{zabbix_params} = $args[0];
         }
@@ -109,7 +105,7 @@ sub prepare {
             $self->{zabbix_params} = \%params;
         }
     }
-    if(!$self->zabbix_method) {
+    if ( !$self->zabbix_method ) {
         croak("No Zabbix API method defined");
     }
     $self->{request} = {
@@ -119,17 +115,14 @@ sub prepare {
         auth    => $self->auth,
         params  => $self->zabbix_params,
     };
-    $self->{json_prepared} = encode_json($self->request) or die($!);
+    $self->{json_prepared} = encode_json( $self->request ) or die($!);
 }
 
 sub execute {
-    my $self   = shift;
-    my $ua = $self->ua;
-    $self->{post_response} = $ua->post( 
-        $self->server, 
-        @content_type, 
-        Content => $self->json_prepared 
-    );
+    my $self = shift;
+    my $ua   = $self->ua;
+    $self->{post_response} = $ua->post( $self->server, @content_type,
+        Content => $self->json_prepared );
     $self->{json_request}  = $self->{post_response}->{'_request'}->{_content};
     $self->{json_response} = $self->{post_response}->{_content};
     $self->{last_response} = decode_json( $self->{post_response}->{_content} );
@@ -140,38 +133,28 @@ sub do {
     my $method = shift;
     my @args   = @_;
     if ($method) {
-        prepare($self, $method, @args);
+        prepare( $self, $method, @args );
     }
     execute($self);
     if ( $self->{last_response}->{error} ) {
         my $error = $self->{last_response}->{error}->{data};
-        if ((!$self->{redo}) && ($error eq 'Session terminated, re-login, please.') ) {
+        if (   ( !$self->{redo} )
+            && ( $error eq 'Session terminated, re-login, please.' ) )
+        {
             $self->{redo}++;
-            delete($self->{auth});
+            delete( $self->{auth} );
             prepare($self);
-            &do($self); ## Need to use "&" because "do" is a perl keyword.
+            &do($self);    ## Need to use "&" because "do" is a perl keyword.
         }
-        else{
+        else {
             croak("Error: $error");
         }
     }
     else {
-        delete($self->{redo}) if $self->redo;
+        delete( $self->{redo} ) if $self->redo;
         $self->{json_executed} = 1;
         return $self->{last_response}->{'result'};
-    };
-}
-
-
-sub re_do {
-    my $self = shift;
-    prepare($self);
-    $self->do($self);
-}
-
-sub error {
-
-
+    }
 }
 
 sub DEMOLISH {

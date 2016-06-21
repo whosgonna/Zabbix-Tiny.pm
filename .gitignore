@@ -27,5 +27,5 @@ cover_db/
 /_build_params
 
 MYMETA.*
-
+/debug/*
 /Zabbix-Tiny-*
