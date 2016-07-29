@@ -1,6 +1,7 @@
 requires 'perl', '5.008001';
 requires 'JSON';
 requires 'LWP';
+requires 'LWP::Protocol::https';
 requires 'Moo';
 requires 'String::Random';
 
