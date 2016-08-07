@@ -1,6 +1,9 @@
 Revision history for Perl extension Zabbix-Tiny
 
 {{$NEXT}}
+
+1.06 2016-08-07T08:43:07Z
+
     - GitHub Issue 14 - Allow for more flexible testing.
 
     - GitHub Issue 13 - Need to add dependency for LWP::Protocol::https in cpanfile
@@ -8,6 +11,7 @@ Revision history for Perl extension Zabbix-Tiny
     - GitHub Issue 12 - error not displayed when connection to the db fails
 
     - GitHub Issue 11 - a way to print out json without contacting the api
+
 
 1.05 2016-03-23T00:01:46Z
     - Should now take params argument as a reference (arrayref or hash ref depending on the Zabbix API method).  Passing parms as a hash (as opposed to hashref) is still supported for backwards compatability.
