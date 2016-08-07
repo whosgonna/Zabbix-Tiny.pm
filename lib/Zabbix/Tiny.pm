@@ -126,6 +126,9 @@ sub execute {
     $self->{json_request}  = $self->{post_response}->{'_request'}->{_content};
     $self->{json_response} = $self->{post_response}->{_content};
     $self->{last_response} = decode_json( $self->{post_response}->{_content} );
+    my $method = $self->zabbix_method;
+    my $params = $self->zabbix_params;
+    prepare($self); ## Rerun prepare to get the new request id.
 }
 
 sub do {
@@ -187,35 +190,43 @@ __END__
 Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Zabbix API
 
 =head1 SYNOPSIS
-
+  
   use strict;
   use warnings;
   use Zabbix::Tiny;
-
+  
   use Data::Dumper;
-
+  
   my $username = 'zabbix_user';
   my $password = 'secretpassword';
   my $url = 'https://zabbix.domain.com/zabbix/api_jsonrpc.php';
-
+  
   my $zabbix = Zabbix::Tiny->new(
       server   => $url,
       password => $password,
       user     => $username
   );
-
+  
   my $params = {
       output    => [qw(hostid name host)],  # Remaining paramters to 'do' are the params for the zabbix method.
       monitored => 1,
       limit     => 2,
       ## Any other params desired
   };
-
+  
+  $zabbix->prepare('host.get', $params);  # Prepare the query. 
+  print $zabbix->prepared . "\n";         # Get the JSON query without actually executing it.
+  my $host = $zabbix->do;                 # Execute the prepared query.
+  
+  # Alternately, the query can be prepared and executed in one step.
   my $hosts = $zabbix->do(
       'host.get',  # First argument is the Zabbix API method
       $params
   );
-
+  
+  # Run the same query again.  Could be useful for history and trend data
+  my $hosts = $zabbix->do;  
+  
   # Print some of the retreived information.
   for my $host (@$hosts) {
       print "Host ID: $host->{hostid} - Display Name: $host->{name}\n";
@@ -232,7 +243,12 @@ Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Z
   print "\$zabbix->post_response:\n";
   print Dumper $zabbix->post_response; # Very verbose.  Probably unnecessary.  
   
-  
+Note that as of version 1.0.6, creation of the Zabbix::Tiny object does not automatically log into the Zabbix server.
+The object will login to the Zabbix server on the first call to the C<prepare> or C<do> method.  If these methods fail 
+to connect with an invalid auth ID (for example, becasuse the user's log in timed out between the prevous call and this
+call, the module will make an attempt to log in again to get a new auth ID.  This makes the module suitable for long 
+running scripts.
+
 =head1 DESCRIPTION
 
 This module functions as a simple wrapper to eliminate boilerplate that might otherwise need to be created when interfacing with the Zabbix API.  Login to the Zabbix server is handled with the constructor. Beyond that, the primary method is the C<do> method. The user.logout method is implemented  in the object deconstructor as well, so there should be no need to explicity logout of Zabbix.
