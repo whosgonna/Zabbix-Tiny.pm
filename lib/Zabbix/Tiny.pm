@@ -24,7 +24,12 @@ has 'password' => (
 has 'zabbix_method'   => ( is => 'ro' );
 has 'zabbix_params'   => ( is => 'ro' );
 has 'auth'            => ( is => 'ro' );
-has 'ua'              => ( is => 'ro' );
+has 'ua'              => ( 
+    is      => 'ro',
+    #isa     => 'LWP::UserAgent',
+    lazy    => 1,
+    default => sub { LWP::UserAgent->new },
+);
 has 'post_response'   => ( is => 'ro' );
 has 'last_response'   => ( is => 'ro' );
 has 'json_request'    => ( is => 'ro' );
@@ -40,7 +45,7 @@ my @content_type = ( 'content-type', 'application/json', );
 
 sub BUILD {
     my $self = shift;
-    $self->{ua} = LWP::UserAgent->new;
+    #$self->{ua} = LWP::UserAgent->new;
     my $ua        = $self->ua;
     my $url       = $self->server;
     my $id        = new String::Random;
