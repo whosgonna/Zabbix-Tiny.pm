@@ -66,7 +66,7 @@ my $auth = $zabbix->login;
 is($authID, $auth, 'AuthID extracted correctly.');
 throws_ok( 
     sub{badpass( $url, $password, $username, $useragent )},
-    qr/Error: Login name or password is incorrect/,
+    qr/Error.*-32602.* Login name or password is incorrect/,
     'Correct handling of a bad user password.'
 );
 
