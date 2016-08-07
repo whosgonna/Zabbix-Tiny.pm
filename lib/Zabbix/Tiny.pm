@@ -88,8 +88,11 @@ sub login {
     }
     my $content = decode_json( $response->{_content} ) or die($!);
     if ( $content->{error} ) {
-        my $error = $content->{error}->{data};
-        croak("Error: $error");
+        my $error_data = $content->{error}->{data};
+        my $error_msg  = $content->{error}->{message};
+        my $error_code = $content->{error}->{code};
+        my $error = "Error from Zabbix (code $error_code): $error_msg  $error_data";
+        croak($error);
     }
     $self->{auth} = $content->{'result'};
 }
