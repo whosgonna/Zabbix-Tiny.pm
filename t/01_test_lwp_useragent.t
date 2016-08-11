@@ -1,5 +1,6 @@
 #!/usr/bin/env perl
-use Modern::Perl;
+use strict;
+use warnings;
 use Zabbix::Tiny;
 use Test::LWP::UserAgent;
 use JSON;
