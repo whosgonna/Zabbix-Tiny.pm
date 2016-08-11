@@ -2,6 +2,9 @@ Revision history for Perl extension Zabbix-Tiny
 
 {{$NEXT}}
 
+    - GitHub Issue #15 - Using Modern::Perl instead of strict and warnings in tests.
+    - GitHub Issue #16 - Wrong version of Test::LWP::UserAgent required.  It was indicated as 0.30, when it should have been 0.030.  I've removed the version number entirely.
+
 1.06 2016-08-07T08:43:07Z
 
     - GitHub Issue 14 - Allow for more flexible testing.

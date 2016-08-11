@@ -53,7 +53,7 @@
       "test" : {
          "requires" : {
             "Test::Exception" : "0.35",
-            "Test::LWP::UserAgent" : "0.30",
+            "Test::LWP::UserAgent" : "0",
             "Test::More" : "0.98"
          }
       }
@@ -70,7 +70,7 @@
          "web" : "https://github.com/whosgonna/Zabbix-Tiny.pm"
       }
    },
-   "version" : "1.06",
+   "version" : "1.07",
    "x_contributors" : [
       "Ben Kaufman <ben.kaufman@altigen.com>",
       "Richlv <richlv@nakts.net>",

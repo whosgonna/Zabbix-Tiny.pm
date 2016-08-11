@@ -28,4 +28,4 @@ cover_db/
 
 MYMETA.*
 /debug/*
-/Zabbix-Tiny-*
+/Zabbix-Tiny-*/
