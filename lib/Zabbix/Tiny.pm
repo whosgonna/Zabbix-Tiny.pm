@@ -6,6 +6,7 @@ use Carp;
 use LWP;
 use JSON;
 use String::Random;
+use Log::Any ();
 
 our $VERSION = "1.07";
 
@@ -41,6 +42,11 @@ has 'request'         => ( is => 'ro' );
 has 'json_prepared'   => ( is => 'ro' );
 has 'json_executed'   => ( is => 'ro', default => sub { 0 } );
 has 'redo'            => ( is => 'ro' );
+has log => (
+    is => 'ro',
+    default => sub { Log::Any->get_logger },
+);
+
 my @content_type = ( 'content-type', 'application/json', );
 
 sub BUILD {
@@ -84,15 +90,16 @@ sub login {
     my $json = encode_json($json_data);
     my $response = $ua->post( $url, @content_type, Content => $json );
     if ( $response->{_rc} !~ /2\d\d/ ) {
-        die("$response->{_msg}");
+        die $self->log->fatal("$response->{_msg}");
     }
-    my $content = decode_json( $response->{_content} ) or die($!);
+    my $content = decode_json( $response->{_content} ) 
+      or die $self->log->fatal($!);
     if ( $content->{error} ) {
         my $error_data = $content->{error}->{data};
         my $error_msg  = $content->{error}->{message};
         my $error_code = $content->{error}->{code};
         my $error = "Error from Zabbix (code $error_code): $error_msg  $error_data";
-        croak($error);
+        croak $self->log->fatal($error);
     }
     $self->{auth} = $content->{'result'};
 }
@@ -114,7 +121,7 @@ sub prepare {
         }
     }
     if ( !$self->zabbix_method ) {
-        croak("No Zabbix API method defined");
+        croak $self->log->fatal("No Zabbix API method defined");
     }
     $self->{request} = {
         jsonrpc => '2.0',
@@ -123,7 +130,8 @@ sub prepare {
         auth    => $self->auth,
         params  => $self->zabbix_params,
     };
-    $self->{json_prepared} = encode_json( $self->request ) or die($!);
+    $self->{json_prepared} = encode_json( $self->request ) 
+      or die $self->log->fatal($!);
 }
 
 sub execute {
@@ -158,7 +166,7 @@ sub do {
             &do($self);    ## Need to use "&" because "do" is a perl keyword.
         }
         else {
-            croak("Error: $error");
+            croak $self->log->fatal("Error: $error");
         }
     }
     else {
