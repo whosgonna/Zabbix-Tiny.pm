@@ -7,6 +7,8 @@ use LWP;
 use JSON;
 use String::Random;
 
+use Data::Printer;
+
 our $VERSION = "1.07";
 
 has 'server' => (
@@ -98,12 +100,12 @@ sub login {
 }
 
 sub prepare {
-    my $self = shift;
-    login($self) if ( !$self->auth );
-    my $id     = new String::Random;
+    my $self   = shift;
     my $method = shift;
+    my $id     = new String::Random;
     if ($method) {
         $self->{zabbix_method} = $method;
+        undef $self->{zabbix_params};
         my @args = @_;
         if ( scalar @args == 1 ) {
             $self->{zabbix_params} = $args[0];
@@ -113,6 +115,9 @@ sub prepare {
             $self->{zabbix_params} = \%params;
         }
     }
+    unless ($self->{zabbix_method} eq 'apiinfo.version') {
+        login($self) if ( !$self->auth );
+    }
     if ( !$self->zabbix_method ) {
         croak("No Zabbix API method defined");
     }
@@ -120,9 +125,11 @@ sub prepare {
         jsonrpc => '2.0',
         id      => $id->randpattern("nnnnnnnnnn"),
         method  => $self->zabbix_method,
-        auth    => $self->auth,
         params  => $self->zabbix_params,
     };
+    unless ($self->{zabbix_method} eq 'apiinfo.version') {
+        $self->{request}->{auth} = $self->auth;
+    }
     $self->{json_prepared} = encode_json( $self->request ) or die($!);
 }
 
