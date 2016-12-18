@@ -7,8 +7,6 @@ use LWP;
 use JSON;
 use String::Random;
 
-use Data::Printer;
-
 our $VERSION = "1.07";
 
 has 'server' => (
@@ -86,7 +84,7 @@ sub login {
     my $json = encode_json($json_data);
     my $response = $ua->post( $url, @content_type, Content => $json );
     if ( $response->{_rc} !~ /2\d\d/ ) {
-        die("$response->{_msg}");
+        croak("$response->{_msg}");
     }
     my $content = decode_json( $response->{_content} ) or die($!);
     if ( $content->{error} ) {
@@ -139,7 +137,7 @@ sub execute {
     $self->{post_response} = $ua->post( $self->server, @content_type,
         Content => $self->json_prepared );
     $self->{json_request}  = $self->{post_response}->{'_request'}->{_content};
-    $self->{json_response} = $self->{post_response}->{_content};
+    $self->{json_response} = $self->post_response->{_content};
     $self->{last_response} = decode_json( $self->{post_response}->{_content} );
     my $method = $self->zabbix_method;
     my $params = $self->zabbix_params;
