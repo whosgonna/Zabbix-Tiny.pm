@@ -7,7 +7,7 @@ use LWP;
 use JSON;
 use String::Random;
 
-our $VERSION = "1.07";
+our $VERSION = "1.08";
 
 has 'server' => (
     is       => 'rw',
@@ -266,7 +266,7 @@ running scripts.
 
 This module functions as a simple wrapper to eliminate boilerplate that might otherwise need to be created when interfacing with the Zabbix API.  Login to the Zabbix server is handled with the constructor. Beyond that, the primary method is the C<do> method. The user.logout method is implemented  in the object deconstructor as well, so there should be no need to explicitly logout of Zabbix.
 
-This module is currently developed against Zabbix 3.0.  It is expected to work with Zabbix 2.4, 2.2, and likely 2.0 as well.  It is much less certain it will work with Zabbix 1.8.  Please refer to the API section of the Zabbix manual for details on its methods.
+This module is currently developed against Zabbix 3.2.  It is expected to work with Zabbix 3.0, 2.4, 2.2, and likely 2.0 as well.  It is much less certain it will work with Zabbix 1.8.  Please refer to the API section of the Zabbix manual for details on its methods.
 
 =head1 METHODS
 
@@ -289,8 +289,16 @@ This creates the json string to be sent to the Zabbix server.  It can then be ex
  my $hosts = $zabbix->do('zabbix.method', [@params]);
  my $hosts = $zabbix->do('zabbix.method', %params); ## Depricated
 
-This will execute any defined Zabbix method, with the corresponding params.  Refer to the Zabbix manual for a list of available methods.  If the Zabbix method is of a *.get flavor, the return is an arrayref data structure containing the response from the Zabbix server.  Starting with v1.05, it is preferred to pass parameters as a hashref or an arrayref, since a few Zabbix API methods take an array, rather than a hash of parameters.  Support for params as a hash are still supported for backwards compatibility.  Calling C<do> without any arguments will use the currently prepared json string.  It also calls C<prepare> immediately after executing. This not only allows for a statement to be prepared, then examined, then executed for debugging purposes.  It also allows for the same query to be run multiple times in a row.
+This will execute any defined Zabbix method, with the corresponding params.  Refer to the Zabbix manual for a list of available methods.  If the Zabbix method is of a *.get flavor, the return is an arrayref data structure containing the response from the Zabbix server.  Calling C<do> without any arguments will use the currently prepared json string.  It also calls C<prepare> immediately after executing. This not only allows for a statement to be prepared, then examined, then executed for debugging purposes.  It also allows for the same query to be run multiple times in a row.
 
+
+=back
+
+=head2 DEPRICATED METHODS
+
+ my $hosts = $zabbix->do('zabbix.method', %params);
+
+Starting with v1.05, it is preferred to pass parameters as a hashref or an arrayref, since a few Zabbix API methods take an array, rather than a hash of parameters.  Support for params as a hash are still supported for backwards compatibility. 
 
 =back
 
