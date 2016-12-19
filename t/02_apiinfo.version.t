@@ -5,7 +5,7 @@ use Zabbix::Tiny;
 use Test::LWP::UserAgent;
 use JSON;
 
-use Test::More tests => 1;
+use Test::More tests => 4;
 use Test::Exception;
 
 use Data::Printer;
@@ -28,7 +28,7 @@ my $zabbix = Zabbix::Tiny->new(
 );
 
 ## An auth ID that can be retuned by the Test::LWP::UserAgent
-my $authID   = '0424bd59b807674191e7d77572075f33';
+my $auth_id  = '0424bd59b807674191e7d77572075f33';
 my $zversion = '3.2.1';
 my $id;
 
@@ -82,7 +82,7 @@ $useragent->map_response(
     },
     sub {
         my $req     = shift;
-        my $message = qq({"jsonrpc":"2.0","result":"$authID","id":"$id"});
+        my $message = qq({"jsonrpc":"2.0","result":"$auth_id","id":"$id"});
         return my200($message);
     }
 );
@@ -94,6 +94,16 @@ lives_ok(
         $version = $zabbix->do('apiinfo.version'), $zversion;
     },
     "version should be $zversion"
+);
+is( $zabbix->auth, undef, "Do not need to be logged into get the version." );
+
+$zabbix->login;
+is( $zabbix->auth, $auth_id, "Login after getting version is ok." );
+lives_ok(
+    sub {
+        $version = $zabbix->do('apiinfo.version'), $zversion;
+    },
+    "Still able to retrieve version after login. (No auth parameter sent)"
 );
 
 #"'apiinfo.version' method should not contain an auth argument";
