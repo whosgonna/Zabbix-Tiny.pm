@@ -3,14 +3,14 @@ use warnings;
 
 use Zabbix::Tiny;
 use Getopt::Long qw(GetOptions);
-#use IO::Socket::SSL;
+use IO::Socket::SSL;
 
 # This example accepts host name and key with wildcards and creates a graph. This would be useful, for example,
 #  to create a graph that includes all items that an LLD rule has created for a specific discovered entity.
 
 my $username = 'Admin';
 my $password = 'zabbix';
-my $zserver='http://192.168.56.10/zabbix';
+my $zserver='http://zabbix_server/zabbix';
 #my $zserver='https://hs.motive.com/zabbix22Staging';
 my @colours = qw(1A7C11 F63100 2774A4 A54F10 FC6EA3 6C59DC AC8C14 611F27 F230E0 5CCD18 BB2A02 5A2B57 89ABF8
      7EC25C 274482 2B5429);
@@ -63,8 +63,8 @@ my $zabbix = Zabbix::Tiny->new(
     user     => $username,
     ssl_opts => {
         verify_hostname => 0,
-#        SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE,
-#        SSL_verify_mode => SSL_VERIFY_NONE,
+        SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE,
+        SSL_verify_mode => SSL_VERIFY_NONE,
     }
 );
 
@@ -101,13 +101,6 @@ my @itemids = map($_->{itemid}, @$result);
 #    push @itemids, $_->{itemid}
 #}
 my $itemcount = scalar @itemids;
-
-#if (@itemids) {
-#    print "... got " . $itemcount . " itemids\n";
-#}
-#else {
-#    die "found no items matching key '$itemkey' on host '$host'";
-#}
 
 if (!@itemids) {
     die "found no items matching key '$itemkey' on host '$host'";
