@@ -8,9 +8,6 @@ use JSON;
 use Test::More tests => 4;
 use Test::Exception;
 
-use Data::Printer;
-use Data::Dumper;
-
 my $url      = 'http://zabbix.domain.com/zabbix/api_jsonrpc.php';
 my $username = 'username';
 my $password = 'P@ssword4ever';
