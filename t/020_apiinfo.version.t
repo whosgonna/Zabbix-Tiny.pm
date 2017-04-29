@@ -34,6 +34,17 @@ my $id;
 
 ## Zabbix API method is 'apiinfo.version', and an auth string is included.
 ## Zabbix will reject this with a error lie $message below.
+my $apiinfo_err =
+    'The "apiinfo.version" method must be called without the "auth" parameter.';
+my $api_message = encode_json({
+    jsonrpc => '2.0',
+    id      => $id,
+    error   => {
+        code    => 32602,
+        message => "Invalid params.",
+        data    => $apiinfo_err,
+      },
+});
 $useragent->map_response(
     sub {
         my $req     = shift;
@@ -43,8 +54,16 @@ $useragent->map_response(
         return 1 if ( $content->{auth} );
     },
     sub {
-        my $message =
-qq({"jsonrpc":"2.0","error":{"code":-32602,"message":"Invalid params.","data":"The \\"apiinfo.version\\" method must be called without the \\"auth\\" parameter."},"id":"$id"});
+        my $message = encode_json({
+            jsonrpc => '2.0',
+            id      => $id,
+            error   => {
+                code    => 32602,
+                message => "Invalid params.",
+                data    => $apiinfo_err,
+            },
+        });
+        #qq({"jsonrpc":"2.0","error":{"code":-32602,"message":"Invalid params.","data":"The \\"apiinfo.version\\" method must be called without the \\"auth\\" parameter."},"id":"$id"});
         return my200($message);
     }
 );
@@ -116,4 +135,3 @@ sub my200 {
         HTTP::Headers->new( 'content-type' => 'application/json' ), $message, );
     return $return;
 }
-

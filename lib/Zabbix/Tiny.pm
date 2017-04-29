@@ -5,9 +5,10 @@ use Moo;
 use Carp;
 use LWP;
 use JSON;
-use String::Random;
 
-our $VERSION = "1.08";
+use Data::Dumper;
+
+our $VERSION = "1.09.1";
 
 has 'server' => (
     is       => 'rw',
@@ -24,12 +25,12 @@ has 'password' => (
 has 'zabbix_method'   => ( is => 'ro' );
 has 'zabbix_params'   => ( is => 'ro' );
 has 'auth'            => ( is => 'ro' );
-has 'ua'              => ( 
+has 'ua'              => (
     is      => 'ro',
-    #isa     => 'LWP::UserAgent',
     lazy    => 1,
     default => sub { LWP::UserAgent->new },
 );
+has 'id'              => ( is => 'ro', default => sub { 1 } );
 has 'post_response'   => ( is => 'ro' );
 has 'last_response'   => ( is => 'ro' );
 has 'json_request'    => ( is => 'ro' );
@@ -41,17 +42,16 @@ has 'request'         => ( is => 'ro' );
 has 'json_prepared'   => ( is => 'ro' );
 has 'json_executed'   => ( is => 'ro', default => sub { 0 } );
 has 'redo'            => ( is => 'ro' );
+
 my @content_type = ( 'content-type', 'application/json', );
 
 sub BUILD {
-    my $self = shift;
-    #$self->{ua} = LWP::UserAgent->new;
+    my $self      = shift;
     my $ua        = $self->ua;
     my $url       = $self->server;
-    my $id        = new String::Random;
     my $json_data = {
         jsonrpc => '2.0',
-        id      => $id->randpattern("nnnnnnnnnn"),
+        id      => $self->id,
         method  => 'user.login',
         params  => {
             user     => $self->user,
@@ -69,12 +69,12 @@ sub BUILD {
 
 sub login {
     my $self      = shift;
-    my $id        = new String::Random;
+    my $id        = $self->id;
     my $ua        = $self->ua;
     my $url       = $self->server;
     my $json_data = {
         jsonrpc => '2.0',
-        id      => $id->randpattern("nnnnnnnnnn"),
+        id      => $id,
         method  => 'user.login',
         params  => {
             user     => $self->user,
@@ -83,10 +83,13 @@ sub login {
     };
     my $json = encode_json($json_data);
     my $response = $ua->post( $url, @content_type, Content => $json );
+
     if ( $response->{_rc} !~ /2\d\d/ ) {
         croak("$response->{_msg}");
     }
+
     my $content = decode_json( $response->{_content} ) or die($!);
+
     if ( $content->{error} ) {
         my $error_data = $content->{error}->{data};
         my $error_msg  = $content->{error}->{message};
@@ -94,13 +97,15 @@ sub login {
         my $error = "Error from Zabbix (code $error_code): $error_msg  $error_data";
         croak($error);
     }
+
     $self->{auth} = $content->{'result'};
 }
 
 sub prepare {
     my $self   = shift;
     my $method = shift;
-    my $id     = new String::Random;
+    #my $id     = new String::Random;
+    $self->{ id }++;
     if ($method) {
         $self->{zabbix_method} = $method;
         undef $self->{zabbix_params};
@@ -121,7 +126,7 @@ sub prepare {
     }
     $self->{request} = {
         jsonrpc => '2.0',
-        id      => $id->randpattern("nnnnnnnnnn"),
+        id      => $self->id,
         method  => $self->zabbix_method,
         params  => $self->zabbix_params,
     };
@@ -176,13 +181,12 @@ sub do {
 sub DEMOLISH {
     my $self      = shift;
     my $method    = shift;
-    my $id        = new String::Random;
     my $ua        = $self->ua;
     my $auth      = $self->auth;
     my $url       = $self->server;
     my $json_data = {
         jsonrpc => '2.0',
-        id      => $id->randpattern("nnnnnnnnnn"),
+        id      => ++$self->{ id },
         method  => 'user.logout',
         auth    => $auth,
     };
@@ -203,48 +207,48 @@ __END__
 Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Zabbix API
 
 =head1 SYNOPSIS
-  
+
   use strict;
   use warnings;
   use Zabbix::Tiny;
-  
+
   use Data::Dumper;
-  
+
   my $username = 'zabbix_user';
   my $password = 'secretpassword';
   my $url = 'https://zabbix.domain.com/zabbix/api_jsonrpc.php';
-  
+
   my $zabbix = Zabbix::Tiny->new(
       server   => $url,
       password => $password,
       user     => $username
   );
-  
+
   my $params = {
       output    => [qw(hostid name host)],  # Remaining paramters to 'do' are the params for the zabbix method.
       monitored => 1,
       limit     => 2,
       ## Any other params desired
   };
-  
-  $zabbix->prepare('host.get', $params);  # Prepare the query. 
+
+  $zabbix->prepare('host.get', $params);  # Prepare the query.
   print $zabbix->prepared . "\n";         # Get the JSON query without actually executing it.
   my $host = $zabbix->do;                 # Execute the prepared query.
-  
+
   # Alternately, the query can be prepared and executed in one step.
   my $hosts = $zabbix->do(
       'host.get',  # First argument is the Zabbix API method
       $params
   );
-  
+
   # Run the same query again.  Could be useful for history and trend data
-  my $hosts = $zabbix->do;  
-  
+  my $hosts = $zabbix->do;
+
   # Print some of the retreived information.
   for my $host (@$hosts) {
       print "Host ID: $host->{hostid} - Display Name: $host->{name}\n";
   }
-  
+
   # Debugging methods:
   print "JSON request:\n" . $zabbix->json_request . "\n\n";   # Print the json data sent in the last request.
   print "JSON response:\n" . $zabbix->json_response . "\n\n"; # Print the json data received in the last response.
@@ -252,14 +256,14 @@ Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Z
 
   print "\$zabbix->last_response:\n";
   print Dumper $zabbix->last_response;
-  
+
   print "\$zabbix->post_response:\n";
-  print Dumper $zabbix->post_response; # Very verbose.  Probably unnecessary.  
-  
+  print Dumper $zabbix->post_response; # Very verbose.  Probably unnecessary.
+
 Note that as of version 1.0.6, creation of the Zabbix::Tiny object does not automatically log into the Zabbix server.
-The object will login to the Zabbix server on the first call to the C<prepare> or C<do> method.  If these methods fail 
+The object will login to the Zabbix server on the first call to the C<prepare> or C<do> method.  If these methods fail
 to connect with an invalid auth ID (for example, becasuse the user's log in timed out between the prevous call and this
-call, the module will make an attempt to log in again to get a new auth ID.  This makes the module suitable for long 
+call, the module will make an attempt to log in again to get a new auth ID.  This makes the module suitable for long
 running scripts.
 
 =head1 DESCRIPTION
@@ -298,7 +302,7 @@ This will execute any defined Zabbix method, with the corresponding params.  Ref
 
  my $hosts = $zabbix->do('zabbix.method', %params);
 
-Starting with v1.05, it is preferred to pass parameters as a hashref or an arrayref, since a few Zabbix API methods take an array, rather than a hash of parameters.  Support for params as a hash are still supported for backwards compatibility. 
+Starting with v1.05, it is preferred to pass parameters as a hashref or an arrayref, since a few Zabbix API methods take an array, rather than a hash of parameters.  Support for params as a hash are still supported for backwards compatibility.
 
 =back
 
@@ -350,11 +354,11 @@ In many cases it is expected that zabbix servers may be using self-signed or oth
       password => $password,
       user     => $username,
       ssl_opts => {
-          verify_hostname => 0, 
+          verify_hostname => 0,
           SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE
       },
   );
- 
+
 
 =head1 See Also
 
@@ -368,10 +372,8 @@ Zabbix::Tiny is Copyright (C) 2016, Ben Kaufman.
 
 This module is free software; you can redistribute it and/or modify it under the same terms as Perl 5.20.3.
 
-This program is distributed in the hope that it will be useful, but it is provided 'as is' and without any express or implied warranties. 
+This program is distributed in the hope that it will be useful, but it is provided 'as is' and without any express or implied warranties.
 
 =head1 AUTHOR
 
 Ben Kaufman
-
-
