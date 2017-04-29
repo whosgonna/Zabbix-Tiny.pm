@@ -1,14 +1,13 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-use Zabbix::Tiny;
 use Test::LWP::UserAgent;
 use JSON;
 
-use Test::More;
+use Test::Most;
 use Test::Exception;
 
-use Data::Printer;
+use_ok('Zabbix::Tiny');
 
 my $url      = 'http://zabbix.domain.com/zabbix/api_jsonrpc.php';
 my $username = 'username';
@@ -18,17 +17,20 @@ my $goodpass = 'goodpass';
 my $useragent = Test::LWP::UserAgent->new;
 
 # Create a new Zabbix::Tiny object
-my $zabbix = Zabbix::Tiny->new(
-    server   => $url,
-    password => $badpass,
-    user     => $username,
-    ua       => $useragent,
+my $zabbix = new_ok(
+    'Zabbix::Tiny', [
+      server   => $url,
+      password => $goodpass,
+      user     => $username,
+      ua       => $useragent,
+    ],
+    '$zabbix'
 );
+
 my $authID = '0424bd59b807674191e7d77572075f33';
 my $id;
-p $zabbix;
 
-
+#### Define responses from the Test::LWP::UserAgent.
 ## valid user.login:
 $useragent->map_response(sub {
         my $req = shift;
@@ -40,17 +42,14 @@ $useragent->map_response(sub {
         );
     },
     sub{
-        my $req = shift;
-        my $res = HTTP::Response->new( '200', 'OK',
+        return HTTP::Response->new( '200', 'OK',
             HTTP::Headers->new('content-type' => 'application/json'),
             encode_json({
                 jsonrpc => '2.0',
                 result  => $authID,
                 id      => $id,
             }),
-            #qq({"jsonrpc":"2.0","result":"$authID","id":"$id"}),
         );
-        return $res; #HTTP::Response->new(200);
     }
 );
 
@@ -65,8 +64,7 @@ $useragent->map_response(sub {
         );
     },
     sub{
-        my $req = shift;
-        my $res = HTTP::Response->new( '200', 'OK',
+        return HTTP::Response->new( '200', 'OK',
             HTTP::Headers->new('content-type' => 'application/json'),
             encode_json({
                 jsonrpc => '2.0',
@@ -77,17 +75,49 @@ $useragent->map_response(sub {
                     data    => 'Login name or password is incorrect.'
                 },
             }),
-            #qq({"jsonrpc":"2.0","error":{"code":-32602,"message":"Invalid params.","data":"Login name or password is incorrect."},"id":"$id"}),
         );
-        return $res; #HTTP::Response->new(200);
+    }
+);
+
+$useragent->map_response(sub {
+        my $req = shift;
+        my $content = decode_json($req->{_content});
+        return 1 if (
+            $content->{method} eq 'host.get'
+            and $content->{params}->{id} == 10001
+        );
+    },
+    sub {
+        return HTTP::Response->new( '200', 'OK',
+            HTTP::Headers->new('content-type' => 'application/json'),
+            encode_json( {
+                jsonrpc => '2.0',
+                result  => [
+                    {
+                        hostid => 10001,
+                        host   => 'ZABBIX-SERVER'
+                    }
+                ],
+                id => $id
+            })
+        );
     }
 );
 
 
 
-my $auth = $zabbix->login;
+ok( my $auth = $zabbix->login,  'Login attempted' );
+is( $auth, $authID, 'AuthID is correctly' );
+is( $zabbix->id, 1, 'ID is 1');
+ok(
+    my $prepare = $zabbix->prepare('host.get', { id => 10001 } ),
+    'host.get prepared'
+);
+is( $zabbix->request->{id}, 2, 'ID is updated to 2 in the prepared request' );
+is( $zabbix->id, $zabbix->request->{id}, '$zabbix->id also updated to 2');
+$id = 3;
+ok( my $host = $zabbix->do(), 'Executed previously prepared host.get' );
 
-is($authID, $auth, 'AuthID extracted correctly.');
 throws_ok(
     sub{badpass( $url, $badpass, $username, $useragent )},
     qr/Error.*-32602.* Login name or password is incorrect/,
@@ -97,6 +127,8 @@ throws_ok(
 
 
 done_testing();
+
+
 
 
 sub badpass {

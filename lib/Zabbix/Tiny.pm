@@ -8,7 +8,7 @@ use JSON;
 
 use Data::Dumper;
 
-our $VERSION = "1.09.1";
+our $VERSION = "1.09";
 
 has 'server' => (
     is       => 'rw',
