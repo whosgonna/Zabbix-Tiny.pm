@@ -83,7 +83,10 @@ sub login {
     my $response = $ua->post( $url, @content_type, Content => $json );
 
     if ( $response->{_rc} !~ /2\d\d/ ) {
-        croak("$response->{_msg}");
+        my $error_message = "HTTP error ";
+        $error_message   .= "(code $response->{_rc}) ";
+        $error_message   .= $response->{_msg} // q{};
+        croak($error_message);
     }
 
     my $content = decode_json( $response->{_content} ) or die($!);
