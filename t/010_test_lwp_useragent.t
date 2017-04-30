@@ -7,8 +7,6 @@ use JSON;
 use Test::Most;
 use Test::Exception;
 
-use Data::Printer colored => 0;
-
 use_ok('Zabbix::Tiny');
 
 my $url      = 'http://zabbix.domain.com/zabbix/api_jsonrpc.php';

@@ -102,7 +102,6 @@ sub login {
 sub prepare {
     my $self   = shift;
     my $method = shift;
-    #my $id     = new String::Random;
     $self->{ id }++;
     if ($method) {
         $self->{zabbix_method} = $method;
