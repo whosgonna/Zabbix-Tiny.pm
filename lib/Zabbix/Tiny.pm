@@ -364,7 +364,7 @@ In many cases it is expected that zabbix servers may be using self-signed or oth
 
 =head1 See Also
 
-Zabbix API Documentation: L<https://www.zabbix.com/documentation/3.0/manual/api>
+Zabbix API Documentation: L<https://www.zabbix.com/documentation/3.2/manual/api>
 
 =head1 COPYRIGHT
 
@@ -372,7 +372,7 @@ Zabbix::Tiny is Copyright (C) 2016, Ben Kaufman.
 
 =head1 License Information
 
-This module is free software; you can redistribute it and/or modify it under the same terms as Perl 5.20.3.
+This module is free software; you can redistribute it and/or modify it under the same terms as Perl 5.
 
 This program is distributed in the hope that it will be useful, but it is provided 'as is' and without any express or implied warranties.
 
