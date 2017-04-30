@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/whosgonna/Zabbix-Tiny.pm.svg?branch=master)](https://travis-ci.org/whosgonna/Zabbix-Tiny.pm) [![Coverage Status](https://img.shields.io/coveralls/whosgonna/Zabbix-Tiny.pm/master.svg?style=flat)](https://coveralls.io/r/whosgonna/Zabbix-Tiny.pm?branch=master)
 # NAME
 
 Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Zabbix API
@@ -7,44 +8,44 @@ Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Z
     use strict;
     use warnings;
     use Zabbix::Tiny;
-    
+
     use Data::Dumper;
-    
+
     my $username = 'zabbix_user';
     my $password = 'secretpassword';
     my $url = 'https://zabbix.domain.com/zabbix/api_jsonrpc.php';
-    
+
     my $zabbix = Zabbix::Tiny->new(
         server   => $url,
         password => $password,
         user     => $username
     );
-    
+
     my $params = {
         output    => [qw(hostid name host)],  # Remaining paramters to 'do' are the params for the zabbix method.
         monitored => 1,
         limit     => 2,
         ## Any other params desired
     };
-    
-    $zabbix->prepare('host.get', $params);  # Prepare the query. 
+
+    $zabbix->prepare('host.get', $params);  # Prepare the query.
     print $zabbix->prepared . "\n";         # Get the JSON query without actually executing it.
     my $host = $zabbix->do;                 # Execute the prepared query.
-    
+
     # Alternately, the query can be prepared and executed in one step.
     my $hosts = $zabbix->do(
         'host.get',  # First argument is the Zabbix API method
         $params
     );
-    
+
     # Run the same query again.  Could be useful for history and trend data
-    my $hosts = $zabbix->do;  
-    
+    my $hosts = $zabbix->do;
+
     # Print some of the retreived information.
     for my $host (@$hosts) {
         print "Host ID: $host->{hostid} - Display Name: $host->{name}\n";
     }
-    
+
     # Debugging methods:
     print "JSON request:\n" . $zabbix->json_request . "\n\n";   # Print the json data sent in the last request.
     print "JSON response:\n" . $zabbix->json_response . "\n\n"; # Print the json data received in the last response.
@@ -52,15 +53,14 @@ Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Z
 
     print "\$zabbix->last_response:\n";
     print Dumper $zabbix->last_response;
-    
+
     print "\$zabbix->post_response:\n";
-    print Dumper $zabbix->post_response; # Very verbose.  Probably unnecessary.  
-    
+    print Dumper $zabbix->post_response; # Very verbose.  Probably unnecessary.
 
 Note that as of version 1.0.6, creation of the Zabbix::Tiny object does not automatically log into the Zabbix server.
-The object will login to the Zabbix server on the first call to the `prepare` or `do` method.  If these methods fail 
+The object will login to the Zabbix server on the first call to the `prepare` or `do` method.  If these methods fail
 to connect with an invalid auth ID (for example, becasuse the user's log in timed out between the prevous call and this
-call, the module will make an attempt to log in again to get a new auth ID.  This makes the module suitable for long 
+call, the module will make an attempt to log in again to get a new auth ID.  This makes the module suitable for long
 running scripts.
 
 # DESCRIPTION
@@ -94,7 +94,7 @@ This module is currently developed against Zabbix 3.2.  It is expected to work w
 
     my $hosts = $zabbix->do('zabbix.method', %params);
 
-Starting with v1.05, it is preferred to pass parameters as a hashref or an arrayref, since a few Zabbix API methods take an array, rather than a hash of parameters.  Support for params as a hash are still supported for backwards compatibility. 
+Starting with v1.05, it is preferred to pass parameters as a hashref or an arrayref, since a few Zabbix API methods take an array, rather than a hash of parameters.  Support for params as a hash are still supported for backwards compatibility.
 
 ## DEBUGGING METHODS
 
@@ -130,21 +130,20 @@ Probably bugs.
 
 In many cases it is expected that zabbix servers may be using self-signed or otherwise 'untrusted' certiifcates.  The ssl\_opts argument in the constructor can be set to any valid values for LWP::UserAgent to disallow certificate checks.  For example:
 
-     use strict;
-     use warnings;
-     use Zabbix::Tiny;
-     use IO::Socket::SSL;
+    use strict;
+    use warnings;
+    use Zabbix::Tiny;
+    use IO::Socket::SSL;
 
-     my $zabbix =  Zabbix::Tiny->new(
-         server   => $url,
-         password => $password,
-         user     => $username,
-         ssl_opts => {
-             verify_hostname => 0, 
-             SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE
-         },
-     );
-    
+    my $zabbix =  Zabbix::Tiny->new(
+        server   => $url,
+        password => $password,
+        user     => $username,
+        ssl_opts => {
+            verify_hostname => 0,
+            SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE
+        },
+    );
 
 # See Also
 
@@ -158,16 +157,8 @@ Zabbix::Tiny is Copyright (C) 2016, Ben Kaufman.
 
 This module is free software; you can redistribute it and/or modify it under the same terms as Perl 5.20.3.
 
-This program is distributed in the hope that it will be useful, but it is provided 'as is' and without any express or implied warranties. 
+This program is distributed in the hope that it will be useful, but it is provided 'as is' and without any express or implied warranties.
 
 # AUTHOR
 
 Ben Kaufman
-
-# POD ERRORS
-
-Hey! **The above document had some coding errors, which are explained below:**
-
-- Around line 303:
-
-    &#x3d;back without =over

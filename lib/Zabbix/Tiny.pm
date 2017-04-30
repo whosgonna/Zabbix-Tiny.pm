@@ -307,7 +307,6 @@ This will execute any defined Zabbix method, with the corresponding params.  Ref
 
 Starting with v1.05, it is preferred to pass parameters as a hashref or an arrayref, since a few Zabbix API methods take an array, rather than a hash of parameters.  Support for params as a hash are still supported for backwards compatibility.
 
-=back
 
 =head2 DEBUGGING METHODS
 
