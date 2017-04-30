@@ -143,6 +143,9 @@ sub execute {
         Content => $self->json_prepared );
     $self->{json_request}  = $self->{post_response}->{'_request'}->{_content};
     $self->{json_response} = $self->post_response->{_content};
+    if ( $self->post_response->{_content} eq q{} ) {
+        croak( "Empty response received from the Zabbix API. This can indicate an error on the API side like running out of memory." );
+    }
     $self->{last_response} = decode_json( $self->{post_response}->{_content} );
     my $method = $self->zabbix_method;
     my $params = $self->zabbix_params;
