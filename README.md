@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/whosgonna/Zabbix-Tiny.pm.svg?branch=master)](https://travis-ci.org/whosgonna/Zabbix-Tiny.pm) [![Coverage Status](https://img.shields.io/coveralls/whosgonna/Zabbix-Tiny.pm/master.svg?style=flat)](https://coveralls.io/r/whosgonna/Zabbix-Tiny.pm?branch=master)
+[![Build Status](https://travis-ci.org/whosgonna/Zabbix-Tiny.pm.svg?branch=master)](https://travis-ci.org/whosgonna/Zabbix-Tiny.pm) [![Coverage Status](https://coveralls.io/repos/github/whosgonna/Zabbix-Tiny.pm/badge.svg?branch=master)](https://coveralls.io/github/whosgonna/Zabbix-Tiny.pm?branch=master)
 # NAME
 
 Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Zabbix API

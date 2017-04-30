@@ -6,8 +6,6 @@ use Carp;
 use LWP;
 use JSON;
 
-use Data::Dumper;
-
 our $VERSION = "1.09";
 
 has 'server' => (
