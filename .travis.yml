@@ -8,4 +8,7 @@ perl:
   - "5.20"
   - "5.22"
   - "5.24"
-
+before_install:
+  cpanm -n Devel::Cover::Report::Coveralls
+script:
+  perl Build.PL && ./Build build && cover -test -report coveralls
