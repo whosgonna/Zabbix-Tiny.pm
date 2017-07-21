@@ -76,7 +76,7 @@ This module is currently developed against Zabbix 3.2.  It is expected to work w
 
 - `my $zabbix = Zabbix::Tiny->new( server => $url, password => $password, user => $username, [ssl_opts => {%ssl_opts}]);`
 
-The constructor requires server, user, and password.  It will create the Zabbix::Tiny object, and log in to the server all at once.  The `ssl_opts` argument can be set to set the LWP::UserAgent ssl\_opts attribute when connecting to https with a self-signed or otherwise un-trusted certificate (see note about untrusted certificates below).
+The constructor requires server, user, and password.  It will create the Zabbix::Tiny object, and log in to the server all at once.  The `ssl_opts` argument can be set to set the LWP::UserAgent ssl_opts attribute when connecting to https with a self-signed or otherwise un-trusted certificate (see note about untrusted certificates below).
 
 - `$zabbix->prepare('zabbix.method', $params );`
 
@@ -107,19 +107,19 @@ The Zabbix::Tiny `do` method contains a very succinct arrayref that should conta
 
 The main purpose of this module is to hide away the need to track the authentication token in the script.  With that in mind, the token used can be retrieved with this method if needed.
 
-- `my $json\_request = $zabbix->json\_request;`
+- `my $json_request = $zabbix->json_request;`
 
 Used to retrieve the last raw json message sent to the Zabbix server, including the "jsonrpc", "id", and "auth".
 
-- `my $json\_response = $zabbix->json\_response;`
+- `my $json_response = $zabbix->json_response;`
 
 Used to retrieve the last raw json message from the zabbix server,  including the "jsonrpc", "id", and "auth".
 
-- `my $verbose = $zabbix->last\_response;`
+- `my $verbose = $zabbix->last_response;`
 
-Similar to json\_response, but the last response message as a perl data structure (hashref).
+Similar to json_response, but the last response message as a perl data structure (hashref).
 
-- `my $post\_response = $zabbix->post\_response;`
+- `my $post_response = $zabbix->post_response;`
 
 The [HTTP::Response](https://metacpan.org/pod/HTTP::Response) from the Zabbix server for the most recent request.
 
@@ -131,7 +131,7 @@ Probably bugs.
 
 ## Untrusted Certificates
 
-In many cases it is expected that zabbix servers may be using self-signed or otherwise 'untrusted' certiifcates.  The ssl\_opts argument in the constructor can be set to any valid values for LWP::UserAgent to disallow certificate checks.  For example:
+In many cases it is expected that zabbix servers may be using self-signed or otherwise 'untrusted' certiifcates.  The ssl_opts argument in the constructor can be set to any valid values for LWP::UserAgent to disallow certificate checks.  For example:
 
     use strict;
     use warnings;
