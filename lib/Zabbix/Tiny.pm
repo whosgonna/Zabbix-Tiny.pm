@@ -344,7 +344,7 @@ Probably bugs.
 
 =head2 Untrusted Certificates
 
-In many cases it is expected that zabbix servers may be using self-signed or otherwise 'untrusted' certiifcates.  The ssl_opts argument in the constructor can be set to any valid values for LWP::UserAgent to disallow certificate checks.  For example:
+In many cases it is expected that zabbix servers may be using self-signed or otherwise 'untrusted' certificates.  The ssl_opts argument in the constructor can be set to any valid values for LWP::UserAgent to disallow certificate checks.  For example:
 
   use strict;
   use warnings;
