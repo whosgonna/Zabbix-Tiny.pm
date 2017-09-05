@@ -23,6 +23,7 @@ has 'password' => (
 has 'zabbix_method'   => ( is => 'ro' );
 has 'zabbix_params'   => ( is => 'ro' );
 has 'auth'            => ( is => 'ro' );
+has 'ua_attrs'        => ( is => 'ro' );
 has 'ua'              => (
     is      => 'ro',
     lazy    => 1,
@@ -40,8 +41,15 @@ has 'request'         => ( is => 'ro' );
 has 'json_prepared'   => ( is => 'ro' );
 has 'json_executed'   => ( is => 'ro', default => sub { 0 } );
 has 'redo'            => ( is => 'ro' );
+has 'lwp'             => ( is => 'ro' );
 
 my @content_type = ( 'content-type', 'application/json', );
+
+sub default_ua {
+    my $self     = shift;
+    my %ua_attrs = %{ $self->ua_attrs };
+    LWP::UserAgent->new( %ua_attrs );
+}
 
 sub BUILD {
     my $self      = shift;
