@@ -23,7 +23,7 @@ has 'password' => (
 has 'zabbix_method'   => ( is => 'ro' );
 has 'zabbix_params'   => ( is => 'ro' );
 has 'auth'            => ( is => 'ro' );
-has 'ua_attrs'        => ( is => 'ro' );
+has 'lwp_attrs'       => ( is => 'ro' );
 has 'ua'              => (
     is      => 'ro',
     lazy    => 1,
@@ -46,8 +46,8 @@ has 'lwp'             => ( is => 'ro' );
 my @content_type = ( 'content-type', 'application/json', );
 
 sub default_ua {
-    my $self     = shift;
-    my %ua_attrs = %{ $self->ua_attrs };
+    my $self      = shift;
+    my %lwp_attrs = %{ $self->lwp_attrs };
     LWP::UserAgent->new( %ua_attrs );
 }
 
@@ -230,9 +230,10 @@ Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Z
   my $url = 'https://zabbix.domain.com/zabbix/api_jsonrpc.php';
 
   my $zabbix = Zabbix::Tiny->new(
-      server   => $url,
-      password => $password,
-      user     => $username
+      server    => $url,
+      password  => $password,
+      user      => $username
+      lwp_attrs => {%lwp_attrs}, # Optional
   );
 
   my $params = {
@@ -289,9 +290,15 @@ This module is currently developed against Zabbix 3.2.  It is expected to work w
 
 =over 4
 
-=item my $zabbix = Zabbix::Tiny->new( server => $url, password => $password, user => $username, [ssl_opts => {%ssl_opts}]);
+=item my $zabbix = Zabbix::Tiny->new( server => $url, password => $password, user => $username, ssl_opts => {%ssl_opts}, lwp_attrs => {%lwp_attrs} );
 
-The constructor requires server, user, and password.  It will create the Zabbix::Tiny object, and log in to the server all at once.  The C<ssl_opts> argument can be set to set the LWP::UserAgent ssl_opts attribute when connecting to https with a self-signed or otherwise un-trusted certificate (see note about untrusted certificates below).
+The constructor requires server, user, and password.  It will create the
+Zabbix::Tiny object, and log in to the server all at once.  The C<lwp_attrs>
+argment will accept any arguments for LWP::UserAgent.  The C<ssl_opts> argument
+can be set to set the LWP::UserAgent ssl_opts attribute when connecting to https
+with a self-signed or otherwise un-trusted certificate (see note about untrusted
+certificates below).
+
 
 =item $zabbix->prepare('zabbix.method', $params );
 
