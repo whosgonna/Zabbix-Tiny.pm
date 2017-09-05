@@ -48,7 +48,7 @@ my @content_type = ( 'content-type', 'application/json', );
 sub default_ua {
     my $self      = shift;
     my %lwp_attrs = %{ $self->lwp_attrs };
-    LWP::UserAgent->new( %ua_attrs );
+    LWP::UserAgent->new( %lwp_attrs );
 }
 
 sub BUILD {
