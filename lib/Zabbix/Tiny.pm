@@ -27,7 +27,11 @@ has 'lwp_attrs'       => ( is => 'ro' );
 has 'ua'              => (
     is      => 'ro',
     lazy    => 1,
-    default => sub { LWP::UserAgent->new },
+    default => sub { 
+        my $self    = shift;
+        my %options = $self->lwp_attrs ? %{ $self->lwp_attrs } : ( );
+        LWP::UserAgent->new( %options );
+    },
 );
 has 'id'              => ( is => 'ro', default => sub { 1 } );
 has 'post_response'   => ( is => 'ro' );
