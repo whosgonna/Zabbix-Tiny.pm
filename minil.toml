@@ -1,7 +1,7 @@
 name = "Zabbix-Tiny"
 badges = ["travis", 'coveralls']
 module_maker="ModuleBuildTiny"
-tag_format="perl/%v"
+tag_format="%v"
 
 [ReleaseTest]
 MinimumVersion = false
