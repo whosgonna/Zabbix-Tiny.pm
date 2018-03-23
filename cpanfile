@@ -1,4 +1,5 @@
 requires 'perl', '5.008001';
+requires 'Module::Build';
 requires 'JSON';
 requires 'LWP';
 requires 'LWP::Protocol::https';
