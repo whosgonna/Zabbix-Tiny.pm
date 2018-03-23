@@ -187,6 +187,9 @@ sub DEMOLISH {
     my $ua        = $self->ua;
     my $auth      = $self->auth;
     my $url       = $self->server;
+	
+	return unless ($ua);
+	
     my $json_data = {
         jsonrpc => '2.0',
         id      => ++$self->{ id },
