@@ -238,7 +238,7 @@ Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Z
   };
 
   $zabbix->prepare('host.get', $params);  # Prepare the query.
-  print $zabbix->prepared . "\n";         # Get the JSON query without actually executing it.
+  print $zabbix->json_prepared . "\n";    # Get the JSON query without actually executing it.
   my $host = $zabbix->do;                 # Execute the prepared query.
 
   # Alternately, the query can be prepared and executed in one step.
@@ -258,6 +258,7 @@ Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Z
   # Debugging methods:
   print "JSON request:\n" . $zabbix->json_request . "\n\n";   # Print the json data sent in the last request.
   print "JSON response:\n" . $zabbix->json_response . "\n\n"; # Print the json data received in the last response.
+  print "Prepared JSON:\n" . $zabbix->json_prepared . "\n\n"; # Print the JSON that will be sent if $zabbix->do is called.
   print "Auth is: ". $zabbix->auth . "\n";
 
   print "\$zabbix->last_response:\n";
@@ -326,6 +327,10 @@ The main purpose of this module is to hide away the need to track the authentica
 Used to retrieve the last raw json message sent to the Zabbix server, including the "jsonrpc", "id", and "auth".
 
 =item my $json_response = $zabbix->json_response;
+
+Used to retrieve the last raw json message from the zabbix server,  including the "jsonrpc", "id", and "auth".
+
+=item my $json_prepared = $zabbix->json_response;
 
 Used to retrieve the last raw json message from the zabbix server,  including the "jsonrpc", "id", and "auth".
 
