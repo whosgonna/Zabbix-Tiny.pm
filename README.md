@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/whosgonna/Zabbix-Tiny.pm.svg?branch=master)](https://travis-ci.org/whosgonna/Zabbix-Tiny.pm) [![Coverage Status](https://img.shields.io/coveralls/whosgonna/Zabbix-Tiny.pm/master.svg?style=flat)](https://coveralls.io/r/whosgonna/Zabbix-Tiny.pm?branch=master)
 # NAME
 
 Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Zabbix API
@@ -113,9 +112,9 @@ The Zabbix::Tiny `do` method contains a very succinct arrayref that should conta
 
     Used to retrieve the last raw json message from the zabbix server,  including the "jsonrpc", "id", and "auth".
 
-- my $json\_prepared = $zabbix->json\_response;
+- my $json\_prepared = $zabbix->json\_prepared;
 
-    Used to retrieve the last raw json message from the zabbix server,  including the "jsonrpc", "id", and "auth".
+    Used to retrieve the raw json message ready to be sent to Zabbix server, including the "jsonrpc", "id" and "auth".
 
 - my $verbose = $zabbix->last\_response;
 

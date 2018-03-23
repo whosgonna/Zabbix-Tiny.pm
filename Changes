@@ -1,6 +1,7 @@
 Revision history for Perl extension Zabbix-Tiny
 
 {{$NEXT}}
+	- GitHub Issue #27 - CORRECTLY fix the issue. (Thanks to dimir)
 
 1.10 2018-03-23T04:24:06Z
 
