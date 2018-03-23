@@ -6,7 +6,7 @@ use Carp;
 use LWP;
 use JSON;
 
-our $VERSION = "1.10";
+our $VERSION = "1.11";
 
 has 'server' => (
     is       => 'rw',
