@@ -330,9 +330,9 @@ Used to retrieve the last raw json message sent to the Zabbix server, including 
 
 Used to retrieve the last raw json message from the zabbix server,  including the "jsonrpc", "id", and "auth".
 
-=item my $json_prepared = $zabbix->json_response;
+=item my $json_prepared = $zabbix->json_prepared;
 
-Used to retrieve the last raw json message from the zabbix server,  including the "jsonrpc", "id", and "auth".
+Used to retrieve the raw json message ready to be sent to Zabbix server, including the "jsonrpc", "id" and "auth".
 
 =item my $verbose = $zabbix->last_response;
 
