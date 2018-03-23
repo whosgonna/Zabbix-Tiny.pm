@@ -1,6 +1,8 @@
 Revision history for Perl extension Zabbix-Tiny
 
 {{$NEXT}}
+
+1.10 2018-03-23T04:16:38Z
 	- GitHub Issue #26 - Cleanup warning when logging out from Zabbix API
 	- GitHub Issue #27 - Issues with json_prepared() method
 	- Added 'Module::Build' to cpanfile
