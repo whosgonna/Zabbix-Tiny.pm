@@ -87,11 +87,11 @@ This module is currently developed against Zabbix 3.2.  It is expected to work w
         my $hosts = $zabbix->do;
         my $hosts = $zabbix->do('zabbix.method', {%params});
         my $hosts = $zabbix->do('zabbix.method', [@params]);
-        my $hosts = $zabbix->do('zabbix.method', %params); ## Depricated
+        my $hosts = $zabbix->do('zabbix.method', %params); ## Deprecated
 
     This will execute any defined Zabbix method, with the corresponding params.  Refer to the Zabbix manual for a list of available methods.  If the Zabbix method is of a \*.get flavor, the return is an arrayref data structure containing the response from the Zabbix server.  Calling `do` without any arguments will use the currently prepared json string.  It also calls `prepare` immediately after executing. This not only allows for a statement to be prepared, then examined, then executed for debugging purposes.  It also allows for the same query to be run multiple times in a row.
 
-## DEPRICATED METHODS
+## DEPRECATED METHODS
 
     my $hosts = $zabbix->do('zabbix.method', %params);
 
