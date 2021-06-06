@@ -22,7 +22,7 @@ Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Z
     );
 
     my $params = {
-        output    => [qw(hostid name host)],  # Remaining paramters to 'do' are the params for the zabbix method.
+        output    => [qw(hostid name host)],  # Remaining parameters to 'do' are the params for the zabbix method.
         monitored => 1,
         limit     => 2,
         ## Any other params desired
@@ -41,7 +41,7 @@ Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Z
     # Run the same query again.  Could be useful for history and trend data
     my $hosts = $zabbix->do;
 
-    # Print some of the retreived information.
+    # Print some of the retrieved information.
     for my $host (@$hosts) {
         print "Host ID: $host->{hostid} - Display Name: $host->{name}\n";
     }
@@ -61,7 +61,7 @@ Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Z
 Note that as of version 1.0.6, creation of the Zabbix::Tiny object does not automatically log into the Zabbix server.
 The object will login to the Zabbix server on the first call to the `prepare` or `do` method.  If these methods fail
 to connect with an invalid auth ID (for example, becasuse the user's log in timed out between the prevous call and this
-call, the module will make an attempt to log in again to get a new auth ID.  This makes the module suitable for long
+call), the module will make an attempt to log in again to get a new auth ID.  This makes the module suitable for long
 running scripts.
 
 # DESCRIPTION
