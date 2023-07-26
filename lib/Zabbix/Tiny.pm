@@ -422,6 +422,10 @@ This module is free software; you can redistribute it and/or modify it under the
 
 This program is distributed in the hope that it will be useful, but it is provided 'as is' and without any express or implied warranties.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Ben Kaufman
+
+Richlv
+
+Ihor Siroshtan
