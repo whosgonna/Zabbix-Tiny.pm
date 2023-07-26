@@ -7,7 +7,7 @@ use LWP;
 use JSON;
 use version;
 
-our $VERSION = "1.11";
+our $VERSION = "2.0";
 
 has 'server' => (
     is       => 'rw',
@@ -41,7 +41,7 @@ has 'request'         => ( is => 'ro' );
 has 'json_prepared'   => ( is => 'ro' );
 has 'json_executed'   => ( is => 'ro', default => sub { 0 } );
 has 'redo'            => ( is => 'ro' );
-has 'version'         => ( is => 'ro' );
+has 'version'         => ( is => 'lazy' );
 
 my @content_type = ( 'content-type', 'application/json', );
 
@@ -49,6 +49,17 @@ sub BUILD {
     my $self      = shift;
     my $ua        = $self->ua;
     my $url       = $self->server;
+
+    my $json_data = {
+        jsonrpc => '2.0',
+        id      => $self->id,
+        method  => 'user.login',
+        params  => {
+            user     => $self->user,
+            password => $self->password,
+        },
+    };
+
     if ( $self->verify_hostname == 0 ) {
         $ua->ssl_opts( verify_hostname => 0 );
     }
@@ -56,21 +67,15 @@ sub BUILD {
     if ( $self->ssl_opts ) {
         $ua->ssl_opts( %{ $self->{ssl_opts} } );
     }
-
-    if ( $self->version ) {
-        $self->{version} = version->new($self->version);
-    }
-
-    if ( !$self->version ) {
-		$self->{version} = version_get($self);
-    }
 }
 
-sub version_get {
+
+sub _build_version {
     my $self      = shift;
     my $id        = $self->id;
     my $ua        = $self->ua;
     my $url       = $self->server;
+
     my $json_data = {
         jsonrpc => '2.0',
         id      => $self->id,
@@ -78,12 +83,19 @@ sub version_get {
         params  => {
         },
     };
+
     my $encoded_json = encode_json ($json_data);
+
     my $post_response = $ua->post(
         $self->server, 
         @content_type,
-        Content => $encoded_json);
+        Content => $encoded_json
+    );
+
+    _validate_http_response($post_response);
+
     my $response_content = decode_json( $post_response->{_content} );
+
     if ( $response_content->{error} ) {
         my $error = $response_content->{error}->{data};
         croak("Error: $error");
@@ -94,11 +106,13 @@ sub version_get {
     }
 }
 
+
 sub login {
     my $self      = shift;
     my $id        = $self->id;
     my $ua        = $self->ua;
     my $url       = $self->server;
+
     my $json_data =  {
         jsonrpc => '2.0',
         id      => $id,
@@ -120,12 +134,7 @@ sub login {
     my $json = encode_json($json_data);
     my $response = $ua->post( $url, @content_type, Content => $json );
 
-    if ( $response->{_rc} !~ /2\d\d/ ) {
-        my $error_message = "HTTP error ";
-        $error_message   .= "(code $response->{_rc}) ";
-        $error_message   .= $response->{_msg} // q{};
-        croak($error_message);
-    }
+    _validate_http_response($response);
 
     my $content = decode_json( $response->{_content} ) or die($!);
 
@@ -138,6 +147,18 @@ sub login {
     }
 
     $self->{auth} = $content->{'result'};
+}
+
+
+sub _validate_http_response {
+    my $response = shift;
+
+    if ( $response->{_rc} !~ /2\d\d/ ) {
+        my $error_message = "HTTP error ";
+        $error_message   .= "(code $response->{_rc}) ";
+        $error_message   .= $response->{_msg} // q{};
+        croak($error_message);
+    }
 }
 
 sub prepare {
