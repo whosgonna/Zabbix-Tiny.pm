@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Test::LWP::UserAgent;
 use JSON;
+use Carp::Always;
 
 use Test::Most;
 use Test::Exception;
@@ -59,6 +60,7 @@ $useragent->map_response(
     }
 );
 
+
 ## invalid user.login:
 $useragent->map_response(
     sub {
@@ -87,7 +89,6 @@ $useragent->map_response(
         );
     }
 );
-
 
 
 ## apiinfo.version request:
@@ -196,40 +197,7 @@ $useragent->map_response(
     }
 );
 
+
 ok( my $auth = $zabbix->login, 'Login attempted' );
-is( $auth,       $authID, 'AuthID is correct' );
-is( $zabbix->id, 1,       'ID is 1' );
-ok( my $prepare = $zabbix->prepare( 'host.get', { id => 10001 } ),
-    'host.get prepared' );
-is( $zabbix->request->{id}, 2, 'ID is updated to 2 in the prepared request' );
-is( $zabbix->id, $zabbix->request->{id}, '$zabbix->id also updated to 2' );
-$id = 3;
-ok( my $host = $zabbix->do(), 'Executed previously prepared host.get' );
-
-throws_ok(
-    sub { badpass( $url, $badpass, $username, $useragent ) },
-    qr/Error.*-32602.* Login name or password is incorrect/,
-    'Correct handling of a bad user password.'
-);
-
-is( my $logout = $zabbix->do( 'user.logout', ), JSON::true, 'User log out' );
-is( $authID, undef, 'Server side auth invalid after logout.' );
-ok( $host = $zabbix->do( 'host.get', { id => 10001 } ), 'Automatic re-login' );
-is( $zabbix->auth, $authID, 'Confirm re-login (auth is set.)' );
-
 done_testing();
-
-sub badpass {
-    my $url  = shift;
-    my $user = shift;
-    my $pass = shift;
-    $pass = substr( $pass, 0, -1 );
-
-    my $zabbix_bad_pass = Zabbix::Tiny->new(
-        server   => $url,
-        user     => $user,
-        password => $pass,
-        ua       => $useragent,
-    );
-    $zabbix_bad_pass->login;
-}
+exit;

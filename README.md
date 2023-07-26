@@ -22,7 +22,7 @@ Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Z
     );
 
     my $params = {
-        output    => [qw(hostid name host)],  # Remaining parameters to 'do' are the params for the zabbix method.
+        output    => [qw(hostid name host)],  # Remaining paramters to 'do' are the params for the zabbix method.
         monitored => 1,
         limit     => 2,
         ## Any other params desired
@@ -41,7 +41,7 @@ Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Z
     # Run the same query again.  Could be useful for history and trend data
     my $hosts = $zabbix->do;
 
-    # Print some of the retrieved information.
+    # Print some of the retreived information.
     for my $host (@$hosts) {
         print "Host ID: $host->{hostid} - Display Name: $host->{name}\n";
     }
@@ -61,7 +61,7 @@ Zabbix::Tiny - A small module to eliminate boilerplate overhead when using the Z
 Note that as of version 1.0.6, creation of the Zabbix::Tiny object does not automatically log into the Zabbix server.
 The object will login to the Zabbix server on the first call to the `prepare` or `do` method.  If these methods fail
 to connect with an invalid auth ID (for example, becasuse the user's log in timed out between the prevous call and this
-call), the module will make an attempt to log in again to get a new auth ID.  This makes the module suitable for long
+call, the module will make an attempt to log in again to get a new auth ID.  This makes the module suitable for long
 running scripts.
 
 # DESCRIPTION
@@ -87,11 +87,11 @@ This module is currently developed against Zabbix 3.2.  It is expected to work w
         my $hosts = $zabbix->do;
         my $hosts = $zabbix->do('zabbix.method', {%params});
         my $hosts = $zabbix->do('zabbix.method', [@params]);
-        my $hosts = $zabbix->do('zabbix.method', %params); ## Deprecated
+        my $hosts = $zabbix->do('zabbix.method', %params); ## Depricated
 
     This will execute any defined Zabbix method, with the corresponding params.  Refer to the Zabbix manual for a list of available methods.  If the Zabbix method is of a \*.get flavor, the return is an arrayref data structure containing the response from the Zabbix server.  Calling `do` without any arguments will use the currently prepared json string.  It also calls `prepare` immediately after executing. This not only allows for a statement to be prepared, then examined, then executed for debugging purposes.  It also allows for the same query to be run multiple times in a row.
 
-## DEPRECATED METHODS
+## DEPRICATED METHODS
 
     my $hosts = $zabbix->do('zabbix.method', %params);
 
@@ -123,7 +123,7 @@ The Zabbix::Tiny `do` method contains a very succinct arrayref that should conta
 
 - my $post\_response = $zabbix->post\_response;
 
-    The [HTTP::Response](https://metacpan.org/pod/HTTP::Response) from the Zabbix server for the most recent request.
+    The [HTTP::Response](https://metacpan.org/pod/HTTP%3A%3AResponse) from the Zabbix server for the most recent request.
 
 # BUGS and CAVEATS
 
@@ -164,6 +164,10 @@ This module is free software; you can redistribute it and/or modify it under the
 
 This program is distributed in the hope that it will be useful, but it is provided 'as is' and without any express or implied warranties.
 
-# AUTHOR
+# AUTHORS
 
 Ben Kaufman
+
+Richlv
+
+Ihor Siroshtan
