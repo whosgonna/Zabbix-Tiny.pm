@@ -5,6 +5,7 @@ use Moo;
 use Carp;
 use LWP;
 use JSON;
+use version;
 
 our $VERSION = "1.11";
 
@@ -40,6 +41,7 @@ has 'request'         => ( is => 'ro' );
 has 'json_prepared'   => ( is => 'ro' );
 has 'json_executed'   => ( is => 'ro', default => sub { 0 } );
 has 'redo'            => ( is => 'ro' );
+has 'version'         => ( is => 'ro' );
 
 my @content_type = ( 'content-type', 'application/json', );
 
@@ -47,21 +49,48 @@ sub BUILD {
     my $self      = shift;
     my $ua        = $self->ua;
     my $url       = $self->server;
-    my $json_data = {
-        jsonrpc => '2.0',
-        id      => $self->id,
-        method  => 'user.login',
-        params  => {
-            user     => $self->user,
-            password => $self->password,
-        },
-    };
     if ( $self->verify_hostname == 0 ) {
         $ua->ssl_opts( verify_hostname => 0 );
     }
 
     if ( $self->ssl_opts ) {
         $ua->ssl_opts( %{ $self->{ssl_opts} } );
+    }
+
+    if ( $self->version ) {
+        $self->{version} = version->new($self->version);
+    }
+
+    if ( !$self->version ) {
+		$self->{version} = version_get($self);
+    }
+}
+
+sub version_get {
+    my $self      = shift;
+    my $id        = $self->id;
+    my $ua        = $self->ua;
+    my $url       = $self->server;
+    my $json_data = {
+        jsonrpc => '2.0',
+        id      => $self->id,
+        method  => 'apiinfo.version',
+        params  => {
+        },
+    };
+    my $encoded_json = encode_json ($json_data);
+    my $post_response = $ua->post(
+        $self->server, 
+        @content_type,
+        Content => $encoded_json);
+    my $response_content = decode_json( $post_response->{_content} );
+    if ( $response_content->{error} ) {
+        my $error = $response_content->{error}->{data};
+        croak("Error: $error");
+    }
+    else {
+        my $version = version->new($response_content->{'result'});
+        return($version);
     }
 }
 
@@ -70,15 +99,24 @@ sub login {
     my $id        = $self->id;
     my $ua        = $self->ua;
     my $url       = $self->server;
-    my $json_data = {
+    my $json_data =  {
         jsonrpc => '2.0',
         id      => $id,
         method  => 'user.login',
-        params  => {
+    };
+
+    if ( $self->version lt "6.0" ) {
+        $json_data->{params} = {
             user     => $self->user,
             password => $self->password,
-        },
-    };
+        };
+    } else {
+        $json_data->{params} = {
+            username => $self->user,
+            password => $self->password,
+        };
+    }
+
     my $json = encode_json($json_data);
     my $response = $ua->post( $url, @content_type, Content => $json );
 
@@ -187,9 +225,9 @@ sub DEMOLISH {
     my $ua        = $self->ua;
     my $auth      = $self->auth;
     my $url       = $self->server;
-	
-	return unless ($ua);
-	
+    
+    return unless ($ua);
+    
     my $json_data = {
         jsonrpc => '2.0',
         id      => ++$self->{ id },
