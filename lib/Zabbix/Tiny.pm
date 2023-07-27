@@ -7,7 +7,7 @@ use LWP;
 use JSON;
 use version;
 
-our $VERSION = "2.0";
+our $VERSION = "2.0.1";
 
 has 'server' => (
     is       => 'rw',

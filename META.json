@@ -72,7 +72,7 @@
          "web" : "https://github.com/whosgonna/Zabbix-Tiny.pm"
       }
    },
-   "version" : "2.0",
+   "version" : "2.0.1",
    "x_contributors" : [
       "Ben Kaufman <ben.whosgonna.com@gmail.com>",
       "Ben Kaufman <whosgonna@users.noreply.github.com>",
