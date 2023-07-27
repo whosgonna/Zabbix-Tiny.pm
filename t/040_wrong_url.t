@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use Test::LWP::UserAgent;
 use JSON;
-use Carp::Always;
 
 use Test::Most;
 use Test::Exception;
